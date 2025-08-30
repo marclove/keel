@@ -4,8 +4,8 @@
   "description": "Composable SaaS architecture using WASI Component Model",
   "private": true,
   "scripts": {
-    "build:components": "cargo build --workspace --target wasm32-wasip1",
-    "build:js": "jco transpile --map '*=@bytecodealliance/preview2-shim/cli/*' components/target/wasm32-wasip1/debug/*.wasm",
+    "build:components": "cargo build --workspace --target wasm32-wasip2",
+    "build:js": "jco transpile --map '*=@bytecodealliance/preview2-shim/cli/*' components/target/wasm32-wasip2/debug/*.wasm",
     "test:bdd": "cargo test --workspace",
     "test:integration": "cargo test --test integration",
     "dev": "cargo run --bin keel-host",

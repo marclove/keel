@@ -62,3 +62,18 @@ The project has comprehensive documentation organized by topic:
 - Provider abstraction through Repository Layer pattern
 - BDD testing at every architectural layer
 - Global coordination while maintaining edge performance
+
+## Dev Workflow (For Agents)
+
+- Use `just` to run common tasks. Start with `just help` to list tasks.
+- Setup: `just init` (adds `wasm32-wasip2` target, installs JS deps).
+- Build: `just build` (native) or `just build-wasm` (WASI preview2).
+- Transpile: `just transpile` to generate JS from built WASM via `jco`.
+- Test: `just test` for the whole workspace or `just test-crate <name>`.
+- Lint/Format: `just clippy`, `just fmt`, `just fmt-check`.
+- Release sanity: `just release-check` (fmt-check, clippy, tests, wasm build, transpile).
+
+Notes for code changes:
+- Keep changes minimal and focused on requested scopes.
+- Align with WIT contracts and layer boundaries.
+- Prefer adding tasks to `justfile` for repeatable workflows.

@@ -10,8 +10,9 @@ This project follows the same collaborative principles as the [WebAssembly Commu
 
 ### Prerequisites
 
-- Rust (latest stable version)
-- Node.js (for jco transpilation tools)
+- Rust (latest stable)
+- wasm32-wasip2 target (added by `just init`)
+- Node.js (for `jco` transpilation tools)
 - Git
 - Familiarity with the [WASI Component Model](https://component-model.bytecodealliance.org/)
 
@@ -23,15 +24,25 @@ This project follows the same collaborative principles as the [WebAssembly Commu
    cd keel
    ```
 
-2. **Install dependencies**:
+2. **Install toolchains and dependencies** (recommended):
    ```bash
-   cargo build
-   npm install
+   just init   # adds wasm32-wasip2 target and installs JS deps
    ```
 
-3. **Run tests**:
+   Manual alternative:
    ```bash
-   cargo test --workspace
+   rustup target add wasm32-wasip2
+   npm install   # or pnpm install
+   ```
+
+3. **Common tasks (via just)**:
+   ```bash
+   just build            # native workspace build
+   just build-wasm       # build for wasm32-wasip2
+   just transpile        # transpile built WASM to JS via jco
+   just test             # run all workspace tests (unit + BDD)
+   just test-crate sql-sqlite  # test a single crate
+   just fmt-check && just clippy
    ```
 
 4. **Check the architecture documentation**:
@@ -187,11 +198,12 @@ Include working examples for:
 ### Pull Request Guidelines
 
 #### Before Submitting
-- [ ] Tests pass locally (`cargo test --workspace`)
+- [ ] Tests pass locally (`just test` or `cargo test --workspace`)
 - [ ] Code follows existing patterns and style
 - [ ] Documentation is updated if needed
 - [ ] BDD tests cover new functionality
 - [ ] No breaking changes to existing WIT interfaces (unless discussed)
+- [ ] Release sanity passes (`just release-check`)
 
 #### PR Description Template
 ```markdown

@@ -10,10 +10,21 @@ Keel is a composable SaaS architecture built on the [WASI Component Model](https
 # Clone and setup
 git clone https://github.com/your-org/keel.git
 cd keel
-cargo build
 
-# Run BDD tests
-cargo test --package sql-sqlite --test bdd_tests
+# One-time setup
+just init              # adds wasm target (wasm32-wasip2), installs JS deps
+
+# Build (native or WASM)
+just build             # native workspace build
+just build-wasm        # wasm32-wasip2 build
+
+# Transpile WASM components to JS (via jco)
+just transpile
+
+# Run tests
+just test              # workspace tests (unit + BDD)
+# or target a single crate
+just test-crate sql-sqlite
 ```
 
 ## Architecture Overview
@@ -88,6 +99,21 @@ template-repository = "template-repository.wasm"
 - 🚧 SQLite and RocksDB integration
 
 See the [Roadmap](ROADMAP.md) for upcoming phases and target dates.
+
+## Just Tasks
+
+- help: List all available tasks.
+- init: Install `wasm32-wasip2` and JS deps.
+- build / build-release: Native builds (debug/release).
+- build-wasm / build-wasm-release: WASM builds for `wasm32-wasip2`.
+- transpile: Transpile WASM to JS using `jco`.
+- test / test-crate <name> / test-integration: Run tests.
+- fmt / fmt-check: Format or verify formatting.
+- clippy: Lint all targets and deny warnings.
+- clean / clean-wasm: Clean build artifacts.
+- tree: Show workspace dependency tree.
+- watch-tests: Re-run tests on change (requires `cargo-watch`).
+- wit-list / wit-print <name>: Explore WIT files.
 
 ## Community
 
