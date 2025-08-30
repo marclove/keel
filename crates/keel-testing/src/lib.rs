@@ -16,7 +16,7 @@ pub fn init_test_logging() {
 // Real test databases using temp directories
 #[derive(Debug)]
 pub struct TestDatabases {
-    temp_dir: TempDir,
+    _temp_dir: TempDir,
     sqlite_path: std::path::PathBuf,
     rocksdb_path: std::path::PathBuf,
 }
@@ -28,7 +28,7 @@ impl TestDatabases {
         let rocksdb_path = temp_dir.path().join("rocksdb");
         
         Ok(Self { 
-            temp_dir,
+            _temp_dir: temp_dir,
             sqlite_path,
             rocksdb_path,
         })

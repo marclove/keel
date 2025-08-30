@@ -1,3 +1,5 @@
+#![cfg(target_arch = "wasm32")]
+
 wit_bindgen::generate!({
     world: "kv-adapter",
     path: "../../../wit",
