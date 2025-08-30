@@ -4,9 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [lib]
-# Default to rlib for non-wasm targets to allow native workspace builds
-
-[target.'cfg(target_arch = "wasm32")'.lib]
 crate-type = ["cdylib"]
 
 [dependencies]

@@ -1,4 +1,4 @@
-set shell := ["bash", "-cu"]
+set shell := ["zsh", "-eu", "-o", "pipefail", "-c"]
 
 # Show all available tasks
 help:
@@ -10,6 +10,7 @@ commit:
     git push
 
 # Install toolchains and JS deps (Rust + Node)
+
 # - Adds wasm32-wasip2 target and installs Node packages
 init:
     rustup target add wasm32-wasip2
@@ -57,7 +58,7 @@ test-integration:
 
 # Run tests for a single crate: just test-crate sql-sqlite
 test-crate crate:
-    cargo test -p {{crate}}
+    cargo test -p {{ crate }}
 
 # Format code
 fmt:
@@ -94,4 +95,4 @@ wit-list:
 
 # Print a WIT file (example: just wit-print world)
 wit-print name:
-    if [ -f "wit/{{name}}.wit" ]; then cat "wit/{{name}}.wit"; else echo "wit/{{name}}.wit not found" >&2; exit 1; fi
+    if [ -f "wit/{{ name }}.wit" ]; then cat "wit/{{ name }}.wit"; else echo "wit/{{ name }}.wit not found" >&2; exit 1; fi
