@@ -1,10 +1,10 @@
 Feature: SQL Operations
   As a business domain component
-  I want to interact with a PostgreSQL database
+  I want to interact with a sqlite database
   So that I can persist and retrieve business data
 
   Background:
-    Given a PostgreSQL database is available
+    Given a sqlite database is available
     And the database is empty
 
   Scenario: Execute a simple query
@@ -30,7 +30,7 @@ Feature: SQL Operations
     Then the query should fail with error "connection-failed"
 
   Scenario: Handle invalid SQL gracefully
-    Given a PostgreSQL database is available
+    Given a sqlite database is available
     When I query "INVALID SQL STATEMENT"
     Then the query should fail with error "query-failed"
 

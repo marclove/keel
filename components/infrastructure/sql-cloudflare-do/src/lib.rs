@@ -1,7 +1,4 @@
-//! # sqllite Adapter
-//!
-//! ## Implementation Status
-//!
+//! # Cloudflare DO SQL Adapter
 
 wit_bindgen::generate!({
     world: "sql-adapter",

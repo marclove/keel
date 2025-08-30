@@ -77,13 +77,13 @@ components/platform-services/[service-name]/
 [package]
 name = "{{component-name}}"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 description = "{{component-description}}"
 
 [dependencies]
 wit-bindgen = "0.16.0"
 anyhow = "1.0"
-# Provider-specific dependencies (e.g., rusqlite, rocksdb)
+# Provider-specific dependencies
 
 [dev-dependencies]
 cucumber = "0.20"
@@ -104,7 +104,7 @@ path = "src/lib.rs"
 [package]
 name = "{{component-name}}"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 description = "{{component-description}}"
 
 [dependencies]
@@ -125,7 +125,7 @@ tempfile = "3.8"
 [package]
 name = "{{component-name}}"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 description = "{{component-description}}"
 
 [dependencies]
@@ -158,16 +158,16 @@ struct Component;
 impl exports::keel::infrastructure::{{interface_snake_case}}::Guest for Component {
     // TODO: Implement WIT interface methods
     // Example for SQL adapter:
-    fn query(sql: String, params: Vec<exports::keel::infrastructure::sql::SqlValue>) 
+    fn query(sql: String, params: Vec<exports::keel::infrastructure::sql::SqlValue>)
         -> Result<exports::keel::infrastructure::sql::QueryResult, exports::keel::infrastructure::sql::SqlError> {
         todo!("Implement SQL query execution")
     }
-    
-    fn execute(sql: String, params: Vec<exports::keel::infrastructure::sql::SqlValue>) 
+
+    fn execute(sql: String, params: Vec<exports::keel::infrastructure::sql::SqlValue>)
         -> Result<u64, exports::keel::infrastructure::sql::SqlError> {
         todo!("Implement SQL command execution")
     }
-    
+
     fn begin_transaction() -> Result<exports::keel::infrastructure::sql::Transaction, exports::keel::infrastructure::sql::SqlError> {
         todo!("Implement transaction begin")
     }
@@ -195,7 +195,7 @@ generate!({
         "keel:repositories/{{interface-name}}": Component,
     },
     with: {
-        "keel:infrastructure/sql": sql,
+        "keel:infrastructure/sql-sqlite": sql,
     }
 });
 
@@ -204,29 +204,29 @@ struct Component;
 impl exports::keel::repositories::{{interface_snake_case}}::Guest for Component {
     // Business operations that abstract database details
     // Example for user-repository:
-    
+
     fn find_by_email(email: String) -> Result<exports::keel::repositories::user_repository::User, exports::keel::repositories::user_repository::UserError> {
         // Validate input
         if email.is_empty() {
             return Err(exports::keel::repositories::user_repository::UserError::InvalidEmail("Email cannot be empty".to_string()));
         }
-        
+
         // Use SQL infrastructure (abstract the SQL)
         let result = sql::query(
             "SELECT id, email, name, created_at FROM users WHERE email = ?1".to_string(),
             vec![sql::SqlValue::Text(email.clone())]
         ).map_err(|e| exports::keel::repositories::user_repository::UserError::DatabaseError(e.to_string()))?;
-        
+
         // Transform to business domain object
         if result.rows.is_empty() {
             return Err(exports::keel::repositories::user_repository::UserError::NotFound(format!("User with email {} not found", email)));
         }
-        
+
         // TODO: Parse SQL result into User domain object
         todo!("Parse SQL result and return User")
     }
-    
-    fn create_user(registration: exports::keel::repositories::user_repository::UserRegistration) 
+
+    fn create_user(registration: exports::keel::repositories::user_repository::UserRegistration)
         -> Result<exports::keel::repositories::user_repository::UserId, exports::keel::repositories::user_repository::UserError> {
         // TODO: Implement user creation with business validation
         todo!("Implement user creation")
@@ -254,35 +254,35 @@ struct Component;
 impl exports::keel::business_domains::{{interface_snake_case}}::Guest for Component {
     // Pure business logic using repositories and platform services
     // Example for email-service:
-    
-    fn send_transactional(to: String, template_id: String, vars: exports::keel::business_domains::email_service::TemplateVars) 
+
+    fn send_transactional(to: String, template_id: String, vars: exports::keel::business_domains::email_service::TemplateVars)
         -> Result<exports::keel::business_domains::email_service::MessageId, exports::keel::business_domains::email_service::EmailError> {
-        
+
         // 1. Use repository layer (no SQL in business logic)
         let user = user_repository::find_by_email(to.clone())
             .map_err(|e| exports::keel::business_domains::email_service::EmailError::InvalidRecipient(e.to_string()))?;
-        
+
         let template = template_repository::get_template(template_id.clone())
             .map_err(|e| exports::keel::business_domains::email_service::EmailError::TemplateNotFound(template_id))?;
-        
+
         // 2. Use platform services
         security_context::validate_permission(user.id, "send-email".to_string())
             .map_err(|_| exports::keel::business_domains::email_service::EmailError::ServiceUnavailable("Permission denied".to_string()))?;
-        
+
         rate_limiting::check_rate_limit(format!("email:{}", user.id), 10, 60)
             .map_err(|_| exports::keel::business_domains::email_service::EmailError::RateLimitExceeded("Too many emails sent".to_string()))?;
-        
+
         // 3. Business logic
         let message = create_message(user, template, vars)?;
         let message_id = message_repository::create_outbound_message(message)?;
-        
+
         // 4. Use infrastructure (via platform services)
         email_provider::send(message.to, message.subject, message.body)
             .map_err(|e| exports::keel::business_domains::email_service::EmailError::DeliveryFailed(e.to_string()))?;
-        
+
         // 5. Track metrics
         observability::record_metric("emails.sent".to_string(), 1.0, vec![("template".to_string(), template_id)]);
-        
+
         Ok(message_id)
     }
 }
@@ -326,13 +326,13 @@ use cucumber::World;
 pub struct TestWorld {
     // Component under test
     component: Option<{{ComponentType}}>,
-    
+
     // Test state
     result: Option<Result<{{SuccessType}}, {{ErrorType}}>>,
-    
+
     // Test fixtures
     test_data: Vec<{{TestDataType}}>,
-    
+
     // Test environment
     temp_dir: Option<tempfile::TempDir>,
 }

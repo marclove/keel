@@ -195,7 +195,7 @@ use wit_bindgen::generate;
 generate!({
     world: "sql-adapter",
     exports: {
-        "keel:infrastructure/sql": Component,
+        "keel:infrastructure/sql-sqlite": Component,
     },
 });
 
@@ -225,7 +225,7 @@ generate!({
         "keel:repositories/user-repository": Component,
     },
     with: {
-        "keel:infrastructure/sql": sql,
+        "keel:infrastructure/sql-sqlite": sql,
     }
 });
 

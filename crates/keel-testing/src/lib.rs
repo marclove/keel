@@ -1,5 +1,4 @@
 use std::sync::Once;
-use tempfile::TempDir;
 
 static INIT: Once = Once::new();
 
@@ -13,37 +12,26 @@ pub fn init_test_logging() {
     });
 }
 
-// Real test databases using temp directories
+// Simplified test databases for WASM compatibility
 #[derive(Debug)]
 pub struct TestDatabases {
-    _temp_dir: TempDir,
     sqlite_path: std::path::PathBuf,
-    rocksdb_path: std::path::PathBuf,
 }
 
 impl TestDatabases {
     pub fn new() -> anyhow::Result<Self> {
-        let temp_dir = tempfile::tempdir()?;
-        let sqlite_path = temp_dir.path().join("test.db");
-        let rocksdb_path = temp_dir.path().join("rocksdb");
-        
-        Ok(Self { 
-            _temp_dir: temp_dir,
-            sqlite_path,
-            rocksdb_path,
-        })
+        // Use fixed paths since tempfile doesn't work with WASM
+        let sqlite_path = std::path::PathBuf::from("test.db");
+
+        Ok(Self { sqlite_path })
     }
 
     pub fn sqlite_connection_string(&self) -> String {
         format!("sqlite:{}", self.sqlite_path.display())
     }
-    
+
     pub fn sqlite_path(&self) -> &std::path::Path {
         &self.sqlite_path
-    }
-
-    pub fn rocksdb_path(&self) -> &std::path::Path {
-        &self.rocksdb_path
     }
 }
 
@@ -59,14 +47,6 @@ impl TestContainers {
             databases: TestDatabases::new()?,
         })
     }
-
-    pub fn postgres_connection_string(&self) -> String {
-        self.databases.sqlite_connection_string()
-    }
-
-    pub fn redis_connection_string(&self) -> String {
-        format!("rocksdb:{}", self.databases.rocksdb_path().display())
-    }
 }
 
 #[macro_export]
@@ -75,21 +55,21 @@ macro_rules! bdd_test {
         #[tokio::test]
         async fn $name() -> cucumber::Result<()> {
             use cucumber::{World as _, WorldInit};
-            
+
             keel_testing::init_test_logging();
-            
+
             let runner = TestWorld::cucumber()
                 .before(|_feature, _rule, _scenario, world| {
                     Box::pin(async move {
                         world.containers = Some(
                             keel_testing::TestContainers::new()
-                                .expect("Failed to start test containers")
+                                .expect("Failed to start test containers"),
                         );
                     })
                 })
                 .run($feature_path)
                 .await;
-                
+
             runner
         }
     };

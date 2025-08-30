@@ -30,6 +30,8 @@ interface sql {
     }
     
     resource transaction {
+        query: func(sql: string, params: list<sql-value>) -> result<query-result, sql-error>;
+        execute: func(sql: string, params: list<sql-value>) -> result<u64, sql-error>;
         commit: func() -> result<_, sql-error>;
         rollback: func() -> result<_, sql-error>;
     }

@@ -27,7 +27,7 @@ generate!({
         "keel:repositories/user-repository": Component,
     },
     with: {
-        "keel:infrastructure/sql": sql,
+        "keel:infrastructure/sql-sqlite": sql,
     }
 });
 
@@ -37,17 +37,17 @@ impl exports::keel::repositories::user_repository::Guest for Component {
     fn find_by_email(email: String) -> Result<User, UserError> {
         // 1. Input validation (business rules)
         validate_email(&email).map_err(|e| UserError::InvalidEmail(e.to_string()))?;
-        
+
         // 2. Translate to SQL using infrastructure
         let result = sql::query(
             "SELECT id, email, name, created_at, preferences FROM users WHERE email = $1".to_string(),
             vec![sql::SqlValue::Text(email.clone())]
         ).map_err(|e| UserError::DatabaseError(e.to_string()))?;
-        
+
         // 3. Handle not found
         let row = result.rows.first()
             .ok_or(UserError::NotFound(format!("No user with email: {}", email)))?;
-        
+
         // 4. Transform to business domain object
         Ok(User {
             id: UserId(extract_uuid(row, 0)?),
@@ -57,24 +57,24 @@ impl exports::keel::repositories::user_repository::Guest for Component {
             preferences: extract_json(row, 4)?,
         })
     }
-    
+
     fn create_user(registration: UserRegistration) -> Result<UserId, UserError> {
         // 1. Business validation
         validate_registration(&registration)?;
-        
+
         // 2. Check for duplicates (business rule)
         if user_exists(&registration.email)? {
             return Err(UserError::DuplicateEmail(registration.email));
         }
-        
+
         // 3. Generate business identifiers
         let user_id = UserId::generate();
         let created_at = Timestamp::now();
-        
+
         // 4. Execute within transaction
         let tx = sql::begin_transaction()
             .map_err(|e| UserError::DatabaseError(e.to_string()))?;
-        
+
         sql::execute(
             "INSERT INTO users (id, email, name, created_at, status) VALUES ($1, $2, $3, $4, $5)".to_string(),
             vec![
@@ -85,18 +85,18 @@ impl exports::keel::repositories::user_repository::Guest for Component {
                 sql::SqlValue::Text("active".to_string()),
             ]
         ).map_err(|e| UserError::DatabaseError(e.to_string()))?;
-        
+
         tx.commit().map_err(|e| UserError::DatabaseError(e.to_string()))?;
         Ok(user_id)
     }
-    
+
     fn update_preferences(user_id: UserId, prefs: UserPreferences) -> Result<(), UserError> {
         // 1. Validate business object
         validate_preferences(&prefs)?;
-        
+
         // 2. Serialize business object
         let prefs_json = serialize_preferences(&prefs)?;
-        
+
         // 3. Update with business semantics
         let affected_rows = sql::execute(
             "UPDATE users SET preferences = $1, updated_at = $2 WHERE id = $3".to_string(),
@@ -106,20 +106,20 @@ impl exports::keel::repositories::user_repository::Guest for Component {
                 sql::SqlValue::Uuid(user_id.to_string()),
             ]
         ).map_err(|e| UserError::DatabaseError(e.to_string()))?;
-        
+
         // 4. Business rule: user must exist
         if affected_rows == 0 {
             return Err(UserError::NotFound(format!("User with ID {} not found", user_id)));
         }
-        
+
         Ok(())
     }
-    
+
     fn deactivate_user(user_id: UserId, reason: DeactivationReason) -> Result<(), UserError> {
         // Business operation with audit trail
         let tx = sql::begin_transaction()
             .map_err(|e| UserError::DatabaseError(e.to_string()))?;
-        
+
         // Update user status
         sql::execute(
             "UPDATE users SET status = 'deactivated', deactivated_at = $1 WHERE id = $2".to_string(),
@@ -128,7 +128,7 @@ impl exports::keel::repositories::user_repository::Guest for Component {
                 sql::SqlValue::Uuid(user_id.to_string()),
             ]
         ).map_err(|e| UserError::DatabaseError(e.to_string()))?;
-        
+
         // Create audit entry (business requirement)
         sql::execute(
             "INSERT INTO user_audit_log (user_id, action, reason, timestamp) VALUES ($1, $2, $3, $4)".to_string(),
@@ -139,7 +139,7 @@ impl exports::keel::repositories::user_repository::Guest for Component {
                 sql::SqlValue::Timestamp(Timestamp::now().as_secs() as i64),
             ]
         ).map_err(|e| UserError::DatabaseError(e.to_string()))?;
-        
+
         tx.commit().map_err(|e| UserError::DatabaseError(e.to_string()))?;
         Ok(())
     }
@@ -201,34 +201,34 @@ fn validate_email(email: &str) -> Result<(), ValidationError> {
     if email.is_empty() {
         return Err(ValidationError::Required("email"));
     }
-    
+
     if !email.contains('@') {
         return Err(ValidationError::InvalidFormat("email must contain @"));
     }
-    
+
     if email.len() > 320 {
         return Err(ValidationError::TooLong("email", 320));
     }
-    
+
     Ok(())
 }
 
 fn validate_registration(registration: &UserRegistration) -> Result<(), UserError> {
     validate_email(&registration.email)
         .map_err(|e| UserError::InvalidEmail(e.to_string()))?;
-    
+
     if registration.name.is_empty() {
         return Err(UserError::ValidationFailed(vec![
             ValidationError::Required("name".to_string())
         ]));
     }
-    
+
     if registration.name.len() > 255 {
         return Err(UserError::ValidationFailed(vec![
             ValidationError::TooLong("name".to_string(), 255)
         ]));
     }
-    
+
     Ok(())
 }
 
@@ -241,7 +241,7 @@ fn validate_preferences(prefs: &UserPreferences) -> Result<(), UserError> {
             ]));
         }
     }
-    
+
     Ok(())
 }
 ```
@@ -251,15 +251,15 @@ fn validate_preferences(prefs: &UserPreferences) -> Result<(), UserError> {
 fn complex_business_operation(user_id: UserId, data: BusinessData) -> Result<(), UserError> {
     let tx = sql::begin_transaction()
         .map_err(|e| UserError::DatabaseError(e.to_string()))?;
-    
+
     // Multiple related operations in single transaction
     update_user_record(&user_id, &data)?;
     create_audit_entry(&user_id, "data_update")?;
     invalidate_user_cache(&user_id)?;
-    
+
     // Business rule: notify other systems
     queue_notification(&user_id, "profile_updated")?;
-    
+
     tx.commit().map_err(|e| UserError::DatabaseError(e.to_string()))?;
     Ok(())
 }
@@ -273,7 +273,7 @@ fn update_user_record(user_id: &UserId, data: &BusinessData) -> Result<(), UserE
             sql::SqlValue::Uuid(user_id.to_string()),
         ]
     ).map_err(|e| UserError::DatabaseError(e.to_string()))?;
-    
+
     Ok(())
 }
 ```
@@ -284,29 +284,29 @@ fn find_users_by_criteria(criteria: UserSearchCriteria) -> Result<Vec<User>, Use
     let mut query = "SELECT id, email, name, created_at FROM users WHERE 1=1".to_string();
     let mut params = Vec::new();
     let mut param_count = 1;
-    
+
     if let Some(email_domain) = criteria.email_domain {
         query.push_str(&format!(" AND email LIKE ${}", param_count));
         params.push(sql::SqlValue::Text(format!("%@{}", email_domain)));
         param_count += 1;
     }
-    
+
     if let Some(created_after) = criteria.created_after {
         query.push_str(&format!(" AND created_at > ${}", param_count));
         params.push(sql::SqlValue::Timestamp(created_after.as_secs() as i64));
         param_count += 1;
     }
-    
+
     if let Some(status) = criteria.status {
         query.push_str(&format!(" AND status = ${}", param_count));
         params.push(sql::SqlValue::Text(status.to_string()));
     }
-    
+
     query.push_str(" ORDER BY created_at DESC LIMIT 100");
-    
+
     let result = sql::query(query, params)
         .map_err(|e| UserError::DatabaseError(e.to_string()))?;
-    
+
     result.rows.into_iter()
         .map(|row| parse_user_row(row))
         .collect()

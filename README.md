@@ -33,7 +33,7 @@ Keel organizes components into layers with clear separation of concerns:
 
 ```
 Product Layer        → Complete SaaS applications
-Business Domain      → Reusable business capabilities  
+Business Domain      → Reusable business capabilities
 Repository Layer     → Abstract data operations
 Platform Services    → Cross-cutting concerns
 Infrastructure       → Provider-specific adapters
@@ -45,7 +45,7 @@ Each layer uses WIT interfaces for strong contracts and hot-swappable implementa
 
 - **🚀 Rapid Development**: Build new SaaS products in weeks, not months
 - **🔄 Hot-Swappable**: Change providers via configuration (PostgreSQL → SQLite)
-- **📦 Edge-Native**: Single binary deployment to edge locations worldwide  
+- **📦 Edge-Native**: Single binary deployment to edge locations worldwide
 - **🌐 Language Agnostic**: Components in Rust, Go, Python, or any WASI language
 - **🧪 Test-Driven**: Comprehensive BDD testing at every layer
 - **🏗️ Team Autonomy**: Independent component development with interface contracts
@@ -59,13 +59,13 @@ impl EmailService {
         // Abstract business operations
         let user = user_repository::find_by_email(&email)?;
         let template = template_repository::get_template("welcome")?;
-        
-        // Platform services  
+
+        // Platform services
         rate_limiting::check_limit(&user.id)?;
-        
+
         // Infrastructure abstraction
         email_provider::send(user.email, template.render(user))?;
-        
+
         Ok(message_id)
     }
 }
@@ -74,10 +74,10 @@ impl EmailService {
 Configuration determines implementation:
 ```toml
 [infrastructure]
-sql = "sql-postgres.wasm"     # or "sql-sqlite.wasm" 
+sql = "sql-sqlite.wasm"     # or "sql-postgres.wasm"
 email = "email-sendgrid.wasm" # or "email-mailgun.wasm"
 
-[repositories]  
+[repositories]
 user-repository = "user-repository.wasm"
 template-repository = "template-repository.wasm"
 ```
@@ -86,7 +86,7 @@ template-repository = "template-repository.wasm"
 
 - **[Architecture Guide](ARCHITECTURE.md)** - Detailed technical architecture and design principles
 - **[Scaling Architecture](SCALING.md)** - Global coordination, billion-user scale, and performance characteristics
-- **[Roadmap](ROADMAP.md)** - Development phases and timeline  
+- **[Roadmap](ROADMAP.md)** - Development phases and timeline
 - **[FAQ](FAQ.md)** - Common questions about architecture, components, and development
 - **[Contributing](CONTRIBUTING.md)** - How to contribute components and improvements
 
@@ -97,6 +97,8 @@ template-repository = "template-repository.wasm"
 - ✅ BDD testing framework
 - ✅ Basic SQL and KV components
 - 🚧 SQLite and RocksDB integration
+**Phase 3 (Platform Services)** - Next: Cross-cutting concerns (observability, security, rate-limiting)
+**Phase 3 (Platform Services)** - Cross-cutting concerns (observability, security, rate-limiting)
 
 See the [Roadmap](ROADMAP.md) for upcoming phases and target dates.
 
@@ -123,7 +125,7 @@ See the [Roadmap](ROADMAP.md) for upcoming phases and target dates.
 
 ## License
 
-[MIT License](LICENSE) - See license file for details.
+[MIT License](./LICENSE) - See license file for details.
 
 ---
 

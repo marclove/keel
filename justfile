@@ -35,6 +35,7 @@ build-wasm-release:
     cargo build --workspace --target wasm32-wasip2 --release
 
 # Transpile built WASM components to JS via jco
+# Generates JavaScript + TypeScript definitions for edge deployment
 transpile:
     if command -v pnpm >/dev/null 2>&1; then pnpm run build:js; \
     elif command -v npm >/dev/null 2>&1; then npm run build:js; \

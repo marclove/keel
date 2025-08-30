@@ -1,46 +1,39 @@
 # Keel Roadmap
 
-> **Status**: This roadmap is actively maintained and updated as the project evolves. The Keel project is in early development (Phase 1).
+> **Status**: This roadmap is actively maintained and updated as the project evolves. The Keel project is in early development (Phase 2).
 
 This roadmap outlines the planned development phases for the Keel composable SaaS architecture. Like the [WASI roadmap](https://wasi.dev/), our development is milestone-driven with incremental deliveries.
 
-## Current Milestone: Foundation (Phase 1)
-
-**Goal**: Establish the core component model architecture and prove it works with real databases.
-
-### Completed
+## Foundation (Phase 1) - COMPLETE
 - [x] Project structure and Cargo workspace setup
 - [x] BDD testing framework using cucumber-rs
 - [x] Generic WIT interfaces for `sql` and `kv` adapters
 - [x] Component compilation and WIT binding generation
-- [x] SQLite and RocksDB integration as test dependencies
 - [x] Architecture documentation and roadmap
-
-### In Progress
-- [ ] Real SQLite integration in BDD tests
-- [ ] Complete sql-sqlite component implementation
-- [ ] Complete kv-rocksdb component implementation
-
-### Target Completion
-Foundation Phase complete with working infrastructure adapters.
 
 ---
 
-## Next Milestone: Infrastructure Layer (Phase 2)
+## Infrastructure Layer (Phase 2)
 
-**Goal**: Complete infrastructure adapter ecosystem with multiple provider options.
+- [ ] Complete sql-sqlite component implementation
+- [ ] Complete kv-rocksdb component implementation
+- [ ] Full WASM compilation pipeline (wasm32-wasip2 target)
+- [ ] JavaScript transpilation via jco toolchain
+- [ ] TypeScript definitions for edge deployment
+- [ ] BDD test integration with WASM components
+- [ ] Single binary deployment capability proven
 
 ### Planned Components
 
 #### SQL Adapters
-- [ ] `sql-sqlite` - SQLite database adapter (in progress)
+- [ ] `sql-sqlite` - SQLite database adapter
 - [ ] `sql-postgres` - PostgreSQL database adapter
 - [ ] `sql-mysql` - MySQL database adapter
 
 #### Key-Value Adapters
-- [ ] `kv-rocksdb` - RocksDB adapter (in progress)
-- [ ] `kv-redis` - Redis adapter
 - [ ] `kv-memory` - In-memory adapter for testing
+- [ ] `kv-rocksdb` - RocksDB adapter
+- [ ] `kv-redis` - Redis adapter
 
 #### Communication Adapters
 - [ ] `email-sendgrid` - SendGrid email provider
@@ -52,20 +45,12 @@ Foundation Phase complete with working infrastructure adapters.
 - [ ] `auth-auth0` - Auth0 authentication provider
 - [ ] `auth-local` - Local authentication for development
 
-### Success Criteria
-- All adapters pass comprehensive BDD test suites
-- Hot-swapping between providers works via configuration
-- Components compile to efficient WASM modules (<1MB each)
-- Documentation and examples for each adapter
-
 ### Target Completion
-Complete infrastructure adapter ecosystem.
+Infrastructure Phase complete with production-ready WASM components.
 
 ---
 
-## Future Milestone: Platform Services Layer (Phase 3)
-
-**Goal**: Cross-cutting concerns that provide observability, security, and operational capabilities.
+## Platform Services Layer (Phase 3)
 
 ### Planned Components
 
@@ -95,7 +80,7 @@ Production-ready platform services.
 
 ---
 
-## Future Milestone: Repository Layer (Phase 4)
+## Repository Layer (Phase 4)
 
 **Goal**: Abstract business data operations away from infrastructure concerns.
 
@@ -131,7 +116,7 @@ Complete repository abstraction layer.
 
 ---
 
-## Future Milestone: Business Domain Layer (Phase 5)
+## Business Domain Layer (Phase 5)
 
 **Goal**: Reusable business capabilities that can be composed into different SaaS products.
 
@@ -168,7 +153,7 @@ Core business domain library complete.
 
 ---
 
-## Future Milestone: Product Composition (Phase 6)
+## Product Composition (Phase 6)
 
 **Goal**: Demonstrate the architecture by building complete SaaS products.
 
@@ -253,10 +238,10 @@ We welcome community input on this roadmap! Here's how to get involved:
 
 ## Milestones Summary
 
-| Phase | Focus | Target | Status |
-|-------|-------|---------|
-| 1 | Foundation & Architecture | 🚧 In Progress |
-| 2 | Infrastructure Adapters | 📋 Planned |
+| Phase | Focus | Status |
+|-------|-------|--------|
+| 1 | Foundation & Architecture | ✅ Complete |
+| 2 | Infrastructure Adapters | 🚧 In Progress |
 | 3 | Platform Services | 📋 Planned |
 | 4 | Repository Layer | 📋 Planned |
 | 5 | Business Domains | 📋 Planned |
