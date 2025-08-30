@@ -1,6 +1,6 @@
 # Keel: Scaling Architecture
 
-> **Note**: This document is actively maintained as the project evolves. For questions not covered here, please [open a GitHub issue](https://github.com/your-org/keel/issues) or see our [FAQ](FAQ.md).
+> **Note**: This document is actively maintained as the project evolves. For questions not covered here, please [open a GitHub issue](https://github.com/marclove/keel/issues) or see our [FAQ](FAQ.md).
 
 This document provides comprehensive coverage of how Keel scales from prototype to billions of users while maintaining its edge-native architecture. For foundational concepts, see our [Architecture Documentation](ARCHITECTURE.md).
 
@@ -406,7 +406,7 @@ Service mesh adds complexity to solve distributed systems problems. Keel elimina
 
 ---
 
-> **Have more questions?** [Open a GitHub issue](https://github.com/your-org/keel/issues) or contribute to our documentation!
+> **Have more questions?** [Open a GitHub issue](https://github.com/marclove/keel/issues) or contribute to our documentation!
 
 > **Last Updated:** December 2024
 > **Contributors:** See our [Contributing Guide](CONTRIBUTING.md)

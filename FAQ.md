@@ -1,6 +1,6 @@
 # Keel: Frequently Asked Questions
 
-> **Note**: This FAQ is actively maintained and updated as the project evolves. If you have questions not covered here, please [open a GitHub issue](https://github.com/your-org/keel/issues) or contribute to our documentation.
+> **Note**: This FAQ is actively maintained and updated as the project evolves. If you have questions not covered here, please [open a GitHub issue](https://github.com/marclove/keel/issues) or contribute to our documentation.
 
 This document addresses common questions about the Keel composable SaaS architecture. For detailed technical specifications, see our [Architecture Documentation](ARCHITECTURE.md).
 
@@ -409,7 +409,7 @@ Service mesh adds complexity to solve distributed systems problems. Keel elimina
 
 ---
 
-> **Have more questions?** [Open a GitHub issue](https://github.com/your-org/keel/issues) or contribute to our documentation!
+> **Have more questions?** [Open a GitHub issue](https://github.com/marclove/keel/issues) or contribute to our documentation!
 
 > **Last Updated:** December 2024
 > **Contributors:** See our [Contributing Guide](CONTRIBUTING.md)

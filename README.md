@@ -23,7 +23,7 @@ These capabilities let us compose business components and attach the right trigg
 
 ```bash
 # Clone and setup
-git clone https://github.com/your-org/keel.git
+git clone https://github.com/marclove/keel.git
 cd keel
 
 # One-time setup
@@ -183,14 +183,10 @@ Spin helpers:
 
 ## Community
 
-- **GitHub Issues**: [Report bugs, request features, ask questions](https://github.com/your-org/keel/issues)
+- **GitHub Issues**: [Report bugs, request features, ask questions](https://github.com/marclove/keel/issues)
 - **Architecture Discussions**: Use the `architecture` label for design discussions
 - **Component Proposals**: Suggest new business domain components
 
 ## License
 
 [MIT License](./LICENSE) - See license file for details.
-
----
-
-Built with ❤️ using the [WASI Component Model](https://component-model.bytecodealliance.org/).
