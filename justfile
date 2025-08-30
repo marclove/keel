@@ -50,6 +50,7 @@ setup:
     just init
     just spin-install
     just spin-check
+    just spin-install-plugins
 
 # Print Windows install instructions (native Windows / PowerShell)
 spin-install-windows:
@@ -59,6 +60,14 @@ spin-install-windows:
     echo "- If you use Chocolatey, try:   choco install spin   (package availability may vary)"; \
     echo "- Alternatively, download the latest MSI from the releases linked in the docs."; \
     echo "WSL users: run 'just spin-install' from WSL to use the Linux path."
+
+spin-install-plugins:
+    echo "Installing the Fermyon Wasm Functions for Akamai Spin plugin to let us"; \
+    echo "to interact with Fermyon Wasm Functions (Login, Deploy, etc.)"
+    spin plugin install aka
+
+spin-login:
+    spin login
 
 # Build all Rust crates (native)
 build:
@@ -77,6 +86,7 @@ build-wasm-release:
     cargo build --workspace --target wasm32-wasip2 --release
 
 # Transpile built WASM components to JS via jco
+
 # Generates JavaScript + TypeScript definitions for edge deployment
 transpile:
     if command -v pnpm >/dev/null 2>&1; then pnpm run build:js; \
@@ -150,6 +160,7 @@ spin-check:
     else echo "Spin CLI not found. Install from https://developer.fermyon.com/spin/v2/index" >&2; exit 1; fi
 
 # Create a new Spin app from a template
+
 # Usage: just spin-new http-rust my-app
 spin-new template name:
     if command -v spin >/dev/null 2>&1; then \
