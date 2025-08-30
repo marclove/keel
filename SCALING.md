@@ -7,7 +7,7 @@ This document provides comprehensive coverage of how Keel scales from prototype 
 ## Table of Contents
 
 - [Edge Deployment Philosophy](#edge-deployment-philosophy)
-- [Performance & Scale](#performance--scale)  
+- [Performance & Scale](#performance--scale)
 - [Global Coordination Architecture](#global-coordination-architecture)
 - [Scaling to Billions of Users](#scaling-to-billions-of-users)
 - [Comparison to Alternatives](#comparison-to-alternatives)
@@ -184,11 +184,11 @@ interface global-coordination {
     // Local operations (synchronous, fast)
     record-local-event: func(event: event-data) -> result<event-id, error>
     get-local-state: func(key: string) -> result<state-value, error>
-    
+
     // Regional operations (async, eventual consistency)
     sync-to-region: func(events: list<event-data>) -> result<sync-id, error>
     subscribe-regional-updates: func(filter: update-filter) -> result<stream<update>, error>
-    
+
     // Global operations (async, relaxed consistency)
     publish-global-event: func(event: global-event) -> result<_, error>
     query-global-state: func(query: global-query) -> result<global-result, error>
@@ -388,9 +388,9 @@ Service mesh adds complexity to solve distributed systems problems. Keel elimina
 **Current Status (Phase 1):** Early development, not production-ready
 
 **Production Readiness Timeline:**
-- **Q2 2025:** Infrastructure adapters complete
-- **Q4 2025:** Repository layer complete  
-- **Q1 2026:** First production SaaS applications
+- **Stage 1:** Infrastructure adapters complete
+- **Stage 2:** Repository layer complete
+- **Stage 3:** First production SaaS applications
 
 **What works today:**
 - WIT interface definitions
@@ -408,5 +408,5 @@ Service mesh adds complexity to solve distributed systems problems. Keel elimina
 
 > **Have more questions?** [Open a GitHub issue](https://github.com/your-org/keel/issues) or contribute to our documentation!
 
-> **Last Updated:** December 2024  
+> **Last Updated:** December 2024
 > **Contributors:** See our [Contributing Guide](CONTRIBUTING.md)

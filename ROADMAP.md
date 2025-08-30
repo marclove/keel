@@ -254,14 +254,14 @@ We welcome community input on this roadmap! Here's how to get involved:
 ## Milestones Summary
 
 | Phase | Focus | Target | Status |
-|-------|-------|--------|---------|
-| 1 | Foundation & Architecture | Q1 2025 | 🚧 In Progress |
-| 2 | Infrastructure Adapters | Q2 2025 | 📋 Planned |
-| 3 | Platform Services | Q3 2025 | 📋 Planned |
-| 4 | Repository Layer | Q4 2025 | 📋 Planned |
-| 5 | Business Domains | Q1 2026 | 📋 Planned |
-| 6 | Product Composition | Q2 2026 | 📋 Planned |
-| 7+ | Advanced Features | 2026+ | 💭 Vision |
+|-------|-------|---------|
+| 1 | Foundation & Architecture | 🚧 In Progress |
+| 2 | Infrastructure Adapters | 📋 Planned |
+| 3 | Platform Services | 📋 Planned |
+| 4 | Repository Layer | 📋 Planned |
+| 5 | Business Domains | 📋 Planned |
+| 6 | Product Composition | 📋 Planned |
+| 7+ | Advanced Features | 💭 Vision |
 
 ---
 

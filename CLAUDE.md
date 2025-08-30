@@ -44,7 +44,7 @@ Interfaces should:
 
 This project uses WASI 0.2 and Component Model for production-ready composable architecture. The toolchain is stable and components can be built today. Components can be transpiled to JavaScript using jco for deployment to platforms like Cloudflare Workers.
 
-**Timeline**: Targeting production readiness by Q1 2026 with multiple SaaS products demonstrating the architecture.
+**Timeline**: Targeting production readiness with multiple SaaS products demonstrating the architecture.
 
 ## Documentation
 
@@ -52,7 +52,7 @@ The project has comprehensive documentation organized by topic:
 
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - Primary technical specification with detailed component hierarchy, layer definitions, and implementation patterns
 - **[SCALING.md](SCALING.md)** - Global coordination architecture for billion-user scale, edge deployment philosophy, and performance characteristics
-- **[ROADMAP.md](ROADMAP.md)** - Milestone-driven development plan with current status and timeline through Q2 2026
+- **[ROADMAP.md](ROADMAP.md)** - Milestone-driven development plan with current status and timeline
 - **[FAQ.md](FAQ.md)** - Common questions about architecture, components, and development approach
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Development guidelines, testing standards, and WIT interface design principles
 

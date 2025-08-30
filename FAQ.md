@@ -68,7 +68,7 @@ impl EmailService {
         // 🚫 SQL in business logic!
         let user = sqlx::query!("SELECT * FROM users WHERE email = ?", to)
             .fetch_one(&self.db).await?;
-        
+
         // 🚫 Provider-specific code!
         sendgrid::send_email(user.email, template).await?;
     }
@@ -83,7 +83,7 @@ impl EmailService {
         // ✅ Business operations only
         let user = user_repository::find_by_email(&to)?;
         let template_data = template_repository::get_template(&template)?;
-        
+
         // ✅ Abstract email sending
         email_provider::send(user.email, template_data)?;
     }
@@ -187,7 +187,7 @@ The Component Model provides the best of both approaches:
 sql = "components/sql-sqlite.wasm"
 email = "components/email-console.wasm"  # Prints to console
 
-# Production environment  
+# Production environment
 [infrastructure]
 sql = "components/sql-postgres.wasm"
 email = "components/email-sendgrid.wasm"
@@ -286,7 +286,7 @@ Feature: User Repository
 fn test_email_service_with_mock() {
     let mock_repo = MockUserRepository::new();
     mock_repo.expect_find_by_email().returning(|_| Ok(test_user()));
-    
+
     let email_service = EmailService::new(mock_repo);
     // Test business logic without database
 }
@@ -300,7 +300,7 @@ fn test_full_email_flow() {
         sql: "sql-sqlite.wasm",
         email: "email-console.wasm",
     };
-    
+
     let app = TestApp::new(config);
     // Test end-to-end functionality
 }
@@ -391,9 +391,9 @@ Service mesh adds complexity to solve distributed systems problems. Keel elimina
 **Current Status (Phase 1):** Early development, not production-ready
 
 **Production Readiness Timeline:**
-- **Q2 2025:** Infrastructure adapters complete
-- **Q4 2025:** Repository layer complete  
-- **Q1 2026:** First production SaaS applications
+- **Stage 1:** Infrastructure adapters complete
+- **Stage 2:** Repository layer complete
+- **Stage 3:** First production SaaS applications
 
 **What works today:**
 - WIT interface definitions
@@ -411,5 +411,5 @@ Service mesh adds complexity to solve distributed systems problems. Keel elimina
 
 > **Have more questions?** [Open a GitHub issue](https://github.com/your-org/keel/issues) or contribute to our documentation!
 
-> **Last Updated:** December 2024  
+> **Last Updated:** December 2024
 > **Contributors:** See our [Contributing Guide](CONTRIBUTING.md)
