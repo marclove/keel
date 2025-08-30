@@ -8,7 +8,7 @@ This roadmap outlines the planned development phases for the Keel composable Saa
 
 **Goal**: Establish the core component model architecture and prove it works with real databases.
 
-### ✅ Completed
+### Completed
 - [x] Project structure and Cargo workspace setup
 - [x] BDD testing framework using cucumber-rs
 - [x] Generic WIT interfaces for `sql` and `kv` adapters
@@ -16,13 +16,13 @@ This roadmap outlines the planned development phases for the Keel composable Saa
 - [x] SQLite and RocksDB integration as test dependencies
 - [x] Architecture documentation and roadmap
 
-### 🚧 In Progress
+### In Progress
 - [ ] Real SQLite integration in BDD tests
 - [ ] Complete sql-sqlite component implementation
 - [ ] Complete kv-rocksdb component implementation
 
 ### Target Completion
-**Q1 2025** - Foundation Phase complete with working infrastructure adapters.
+Foundation Phase complete with working infrastructure adapters.
 
 ---
 
@@ -37,7 +37,7 @@ This roadmap outlines the planned development phases for the Keel composable Saa
 - [ ] `sql-postgres` - PostgreSQL database adapter
 - [ ] `sql-mysql` - MySQL database adapter
 
-#### Key-Value Adapters  
+#### Key-Value Adapters
 - [ ] `kv-rocksdb` - RocksDB adapter (in progress)
 - [ ] `kv-redis` - Redis adapter
 - [ ] `kv-memory` - In-memory adapter for testing
@@ -59,7 +59,7 @@ This roadmap outlines the planned development phases for the Keel composable Saa
 - Documentation and examples for each adapter
 
 ### Target Completion
-**Q2 2025** - Complete infrastructure adapter ecosystem.
+Complete infrastructure adapter ecosystem.
 
 ---
 
@@ -91,7 +91,7 @@ This roadmap outlines the planned development phases for the Keel composable Saa
 - Feature flags enable safe deployments
 
 ### Target Completion
-**Q3 2025** - Production-ready platform services.
+Production-ready platform services.
 
 ---
 
@@ -127,7 +127,7 @@ interface user-repository {
 - Performance benchmarks meet SaaS application requirements
 
 ### Target Completion
-**Q4 2025** - Complete repository abstraction layer.
+Complete repository abstraction layer.
 
 ---
 
@@ -164,7 +164,7 @@ interface user-repository {
 - Business domains integrate cleanly with platform services
 
 ### Target Completion
-**Q1 2026** - Core business domain library complete.
+Core business domain library complete.
 
 ---
 
@@ -202,11 +202,11 @@ A Twitch competitor demonstrating:
 - Production performance (sub-100ms response times)
 
 ### Target Completion
-**Q2 2026** - First product suite launched.
+First product suite launched.
 
 ---
 
-## Long-term Vision (2026+)
+## Long-term Vision
 
 ### Advanced Runtime Features
 - **Hot Component Swapping** - Update business logic without restarts
@@ -265,6 +265,5 @@ We welcome community input on this roadmap! Here's how to get involved:
 
 ---
 
-> **Last Updated**: December 2024  
-> **Next Review**: End of Q1 2025  
-> **Maintainers**: [Project Team](https://github.com/your-org/keel/blob/main/MAINTAINERS.md)
+> **Last Updated**: August 2025
+> **Maintainers**: [Project Team](https://github.com/marclove/keel/blob/main/MAINTAINERS.md)
