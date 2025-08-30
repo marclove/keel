@@ -38,3 +38,5 @@ coverage/
 # Build artifacts
 dist/
 build/
+
+BRAINSTORMING.md

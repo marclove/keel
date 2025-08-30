@@ -59,6 +59,7 @@ Product Layer (SaaS Applications)
 
 ### 1. Infrastructure Layer
 **Purpose**: Pure adapters to external services and databases.
+
 **Characteristics**:
 - Provider-specific implementations (sql-sqlite, kv-redis, etc.)
 - No business logic
@@ -89,6 +90,7 @@ interface sql {
 
 ### 2. Platform Services Layer
 **Purpose**: Cross-cutting concerns that all business components may need.
+
 **Characteristics**:
 - Observability, security, rate limiting, feature flags
 - Used by multiple business domains
@@ -105,6 +107,7 @@ components/platform-services/
 
 ### 3. Repository Layer
 **Purpose**: Translate between business concepts and data persistence.
+
 **Characteristics**:
 - Abstract business operations (no SQL strings in business logic)
 - Domain-focused interfaces
@@ -136,10 +139,10 @@ impl UserRepository for UserRepositoryImpl {
     fn find_by_email(email: String) -> Result<User, UserError> {
         // Abstract business operation -> SQL translation happens here
         let result = sql::query(
-            "SELECT id, email, name, created_at FROM users WHERE email = $1", 
+            "SELECT id, email, name, created_at FROM users WHERE email = $1",
             vec![SqlValue::Text(email)]
         )?;
-        
+
         // Convert SQL result to business domain object
         Ok(User::from_sql_row(result.rows.first().ok_or(UserError::NotFound)?))
     }
@@ -148,6 +151,7 @@ impl UserRepository for UserRepositoryImpl {
 
 ### 4. Business Domain Layer
 **Purpose**: Core business capabilities that can be reused across products.
+
 **Characteristics**:
 - Pure business logic and workflows
 - Uses repository layer for data access
@@ -182,21 +186,21 @@ impl EmailService for EmailServiceImpl {
         // Use repository layer (no SQL in business logic)
         let user = user_repository::find_by_email(&to)?;
         let template_data = template_repository::get_template(&template)?;
-        
+
         // Use platform services
         security_context::validate_permission(&user, "send-email")?;
         rate_limiting::check_rate_limit(&format!("email:{}", user.id), 10, Duration::minutes(1))?;
-        
+
         // Create business domain objects
         let message = Message::new(&user, &template_data, vars);
         let message_id = message_repository::create_outbound_message(&message)?;
-        
+
         // Use infrastructure (via platform service)
         email_provider::send(message.to, message.subject, message.body)?;
-        
+
         // Track metrics
         observability::record_metric("emails.sent", 1.0, vec![("template", &template)]);
-        
+
         Ok(message_id)
     }
 }
@@ -204,6 +208,7 @@ impl EmailService for EmailServiceImpl {
 
 ### 5. Product Layer
 **Purpose**: Complete SaaS applications composed of business domain components.
+
 **Characteristics**:
 - Orchestration and UX-specific logic
 - HTTP routing, API design, user interface adaptation
@@ -213,7 +218,7 @@ impl EmailService for EmailServiceImpl {
 ```
 products/
 ├── team-collaboration/  # Slack/Discord competitor
-├── live-streaming/      # Twitch competitor  
+├── live-streaming/      # Twitch competitor
 ├── e-learning/          # Teachable competitor
 └── project-management/  # Asana competitor
 ```
@@ -312,7 +317,7 @@ fn test_user_repository_with_sqlite() {
 }
 
 // Business domain tests use mock repositories
-#[test] 
+#[test]
 fn test_email_service_with_mock_repo() {
     let mock_repo = MockUserRepository::new();
     let email_service = EmailService::new(mock_repo);
@@ -360,7 +365,7 @@ Business domains can be shared across products:
 # Both team-collaboration and project-management can use:
 [business-domains]
 email-service = "components/email-service.wasm"
-user-lifecycle = "components/user-lifecycle.wasm" 
+user-lifecycle = "components/user-lifecycle.wasm"
 notification-orchestration = "components/notification-orchestration.wasm"
 ```
 
@@ -374,7 +379,7 @@ notification-orchestration = "components/notification-orchestration.wasm"
 
 ### Phase 2: Infrastructure Layer
 - [ ] Complete SQL adapter implementations
-- [ ] Complete KV adapter implementations  
+- [ ] Complete KV adapter implementations
 - [ ] Email provider adapters (SendGrid, Mailgun)
 - [ ] Authentication provider adapters (Okta, Auth0)
 
