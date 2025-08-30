@@ -1,5 +1,20 @@
 {
   "permissions": {
-    "allow": ["Bash(cargo test:*)", "Bash(cargo check:*)", "Bash(wit-deps:*)", "Bash(cargo expand:*)"]
+    "allow": [
+      "Bash(just)",
+      "Bash(cargo)",
+      "Bash(mkdir)",
+      "Bash(wasm-tools)",
+      "Bash(wit-deps)",
+      "WebSearch",
+      "WebFetch(domain:crates.io)",
+      "WebFetch(domain:docs.rs)",
+      "WebFetch(domain:wasi.dev)",
+      "WebFetch(domain:docs.wasmtime.dev)",
+      "WebFetch(domain:developers.cloudflare.com)",
+      "WebFetch(domain:developer.fermyon.com)",
+      "WebFetch(domain:spinframework.dev)",
+      "WebFetch(domain:www.fermyon.com)"
+    ]
   }
 }
