@@ -1,5 +1,5 @@
 wit_bindgen::generate!({
-    world: "postgres-sql",
+    world: "sql-adapter",
     path: "../../../wit",
 });
 

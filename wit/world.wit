@@ -1,9 +1,9 @@
 package keel:infrastructure@0.1.0;
 
-world postgres-sql {
+world sql-adapter {
     export sql;
 }
 
-world redis-kv {
+world kv-adapter {
     export kv;
 }

@@ -1,4 +1,5 @@
 use std::sync::Once;
+use tempfile::TempDir;
 
 static INIT: Once = Once::new();
 
@@ -12,28 +13,59 @@ pub fn init_test_logging() {
     });
 }
 
-// Simplified mock containers for now
+// Real test databases using temp directories
+#[derive(Debug)]
+pub struct TestDatabases {
+    temp_dir: TempDir,
+    sqlite_path: std::path::PathBuf,
+    rocksdb_path: std::path::PathBuf,
+}
+
+impl TestDatabases {
+    pub fn new() -> anyhow::Result<Self> {
+        let temp_dir = tempfile::tempdir()?;
+        let sqlite_path = temp_dir.path().join("test.db");
+        let rocksdb_path = temp_dir.path().join("rocksdb");
+        
+        Ok(Self { 
+            temp_dir,
+            sqlite_path,
+            rocksdb_path,
+        })
+    }
+
+    pub fn sqlite_connection_string(&self) -> String {
+        format!("sqlite:{}", self.sqlite_path.display())
+    }
+    
+    pub fn sqlite_path(&self) -> &std::path::Path {
+        &self.sqlite_path
+    }
+
+    pub fn rocksdb_path(&self) -> &std::path::Path {
+        &self.rocksdb_path
+    }
+}
+
+// Keep old interface for backward compatibility during transition
 #[derive(Debug)]
 pub struct TestContainers {
-    pub postgres_port: u16,
-    pub redis_port: u16,
+    pub databases: TestDatabases,
 }
 
 impl TestContainers {
     pub fn new() -> anyhow::Result<Self> {
-        // Mock implementation for now - we'll add real containers later
-        Ok(Self { 
-            postgres_port: 5432, 
-            redis_port: 6379 
+        Ok(Self {
+            databases: TestDatabases::new()?,
         })
     }
 
     pub fn postgres_connection_string(&self) -> String {
-        format!("postgresql://postgres:postgres@127.0.0.1:{}/postgres", self.postgres_port)
+        self.databases.sqlite_connection_string()
     }
 
     pub fn redis_connection_string(&self) -> String {
-        format!("redis://127.0.0.1:{}", self.redis_port)
+        format!("rocksdb:{}", self.databases.rocksdb_path().display())
     }
 }
 
