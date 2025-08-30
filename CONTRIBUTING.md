@@ -64,7 +64,7 @@ We use GitHub Issues to track bugs, feature requests, and architecture discussio
 Infrastructure components should be pure adapters with these characteristics:
 
 - **Single Responsibility**: Each component handles exactly one external service
-- **No Business Logic**: Pure translation between WIT interfaces and provider APIs  
+- **No Business Logic**: Pure translation between WIT interfaces and provider APIs
 - **Provider-Specific**: Named clearly (e.g., `sql-sqlite`, `email-sendgrid`)
 - **Comprehensive Testing**: BDD tests with real provider integration
 
@@ -142,7 +142,7 @@ Feature: User Registration
 #### Test Categories
 
 - **Unit Tests**: Component-level functionality
-- **Integration Tests**: Component interactions with real dependencies  
+- **Integration Tests**: Component interactions with real dependencies
 - **BDD Tests**: User-facing behavior scenarios
 - **Performance Tests**: Latency and throughput requirements
 
@@ -159,7 +159,7 @@ When designing WIT interfaces, follow these principles:
 ```wit
 variant user-error {
     not-found(string),
-    invalid-email(string), 
+    invalid-email(string),
     duplicate-email(string),
     validation-failed(list<validation-error>),
 }
@@ -254,7 +254,7 @@ We follow milestone-driven releases aligned with our [roadmap](ROADMAP.md):
 
 ## Recognition
 
-We maintain a [CONTRIBUTORS.md](CONTRIBUTORS.md) file to recognize all contributors to the project. Contributions include:
+We maintain a [CONTRIBUTORS.md](/CONTRIBUTORS.md) file to recognize all contributors to the project. Contributions include:
 
 - Code contributions (components, tests, fixes)
 - Documentation improvements
