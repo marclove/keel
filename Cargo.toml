@@ -1,0 +1,27 @@
+[workspace]
+resolver = "2"
+members = [
+    "components/infrastructure/postgres-sql",
+    "crates/keel-testing"
+]
+
+[workspace.dependencies]
+wit-bindgen = "0.36"
+wasmtime = "25"
+wasmtime-wasi = "25"
+tokio = { version = "1.0", features = ["full"] }
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sqlx = { version = "0.8", features = ["postgres", "runtime-tokio-rustls", "chrono", "uuid"] }
+redis = { version = "0.26", features = ["aio", "tokio-comp"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+# Testing dependencies
+cucumber = "0.21"
+tokio-test = "0.4"
+testcontainers = "0.23"
+testcontainers-modules = { version = "0.11", features = ["postgres", "redis"] }

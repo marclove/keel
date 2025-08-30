@@ -35,7 +35,7 @@ This gives you some powerful properties:
 What's your primary driver here - is it portability, testing isolation, or something else? The specific use case might influence how you'd structure the interface boundaries.
 
 ME:
-i want to give simple, unifed interfaces to web application developers with the ability to easily swap email providers through configuration rather than implementing multiple APIs.
+i want to give simple, unified interfaces to web application developers with the ability to easily swap email providers through configuration rather than implementing multiple APIs.
 
 CLAUDE:
 That's a really solid use case for the Component Model. You're essentially building an email abstraction layer where the WASI component becomes a standardized "email driver" interface.
@@ -52,7 +52,7 @@ interface email {
 
 Then you'd have separate WASI components for each provider:
 - `sendgrid-email.wasm`
-- `mailgun-email.wasm` 
+- `mailgun-email.wasm`
 - `ses-email.wasm`
 - `postmark-email.wasm`
 
@@ -113,14 +113,14 @@ impl Guest for EmailImpl {
     fn send(params: SendParams) -> Result<DeliveryId, EmailError> {
         // Get host-provided config via imports
         let config = host::get_config();
-        
+
         // Use host's HTTP client to call SendGrid API
         let response = host::http_request(HttpRequest {
             url: "https://api.sendgrid.com/v3/mail/send",
             headers: vec![("Authorization", &format!("Bearer {}", config.api_key))],
             body: serialize_sendgrid_payload(params)
         })?;
-        
+
         Ok(DeliveryId::new(extract_message_id(response)))
     }
 }
@@ -137,7 +137,7 @@ use wasmtime::component::{Component, Linker};
 async fn main() {
     let engine = Engine::new(&Config::new().wasm_component_model(true));
     let component = Component::from_file(&engine, "providers/mailgun.wasm")?;
-    
+
     let server = warp::serve(
         warp::path("send")
             .and(warp::post())
@@ -148,7 +148,7 @@ async fn main() {
                 instance.call_send(&mut store, &req.into()).await
             })
     );
-    
+
     server.run(([0, 0, 0, 0], 3030)).await;
 }
 ```
@@ -381,7 +381,7 @@ Based on your business goals, **Option 1 (Hierarchical/True Lego Model)** is muc
 
 ## Why Hierarchical Fits Your Goals
 
-**Goal #2 (Rapid development + hot swapping):** 
+**Goal #2 (Rapid development + hot swapping):**
 With hierarchical composition, swapping authentication providers is literally just changing a config file that points to `okta-auth.wasm` vs `auth0-auth.wasm`. Your web app doesn't restart, doesn't redeploy - the runtime just loads a different component. This is true hot-swapping.
 
 **Goal #3 (Edge deployment + avoid centralized services):**
@@ -390,7 +390,7 @@ This is the killer argument for hierarchical. Each edge deployment becomes a sin
 edge-app-binary
 ├─ your-web-app (host)
 ├─ auth-service.wasm (guest)
-├─ email-service.wasm (guest) 
+├─ email-service.wasm (guest)
 ├─ sql-service.wasm (guest)
 └─ logging-service.wasm (guest)
 ```
@@ -409,11 +409,11 @@ world ecommerce-app {
     authenticate: func(token: string) -> result<user-id, auth-error>
     authorize: func(user: user-id, resource: string) -> bool
   }
-  
+
   import email-service: interface {
     send: func(to: string, template: string, vars: variables) -> result<_, email-error>
   }
-  
+
   export http-handler: interface {
     handle-request: func(req: http-request) -> http-response
   }
@@ -448,61 +448,61 @@ world ecommerce-app {
     authorize: func(user: user, action: string, resource: string) -> result<_, authz-error>
     create-session: func(user: user) -> session-token
   }
-  
+
   // Data Layer
   import sql: interface {
     query: func(sql: string, params: list<sql-value>) -> result<query-result, sql-error>
     transaction: func() -> transaction-handle
     commit: func(tx: transaction-handle) -> result<_, sql-error>
   }
-  
+
   import kv: interface {
     get: func(key: string) -> result<option<bytes>, kv-error>
     set: func(key: string, value: bytes, ttl: option<u32>) -> result<_, kv-error>
     delete: func(key: string) -> result<_, kv-error>
   }
-  
+
   // Communications
   import email: interface {
     send: func(to: string, subject: string, template: string, vars: template-vars) -> result<message-id, email-error>
     send-transactional: func(to: string, template-id: string, vars: template-vars) -> result<message-id, email-error>
   }
-  
+
   // Observability
   import logging: interface {
     log: func(level: log-level, message: string, context: list<tuple<string, string>>)
     metric: func(name: string, value: f64, tags: list<tuple<string, string>>)
   }
-  
+
   import tracing: interface {
     start-span: func(name: string) -> span-handle
     add-event: func(span: span-handle, name: string, attrs: list<tuple<string, string>>)
     end-span: func(span: span-handle)
   }
-  
+
   // External Services
   import http-client: interface {
     request: func(req: http-request) -> result<http-response, http-error>
   }
-  
+
   // File Storage
   import object-store: interface {
     put-object: func(bucket: string, key: string, data: bytes) -> result<object-url, storage-error>
     get-object: func(bucket: string, key: string) -> result<bytes, storage-error>
     delete-object: func(bucket: string, key: string) -> result<_, storage-error>
   }
-  
+
   // === BUSINESS LOGIC EXPORTS ===
   export http-handler: interface {
     handle-request: func(req: http-request) -> http-response
   }
-  
+
   export background-jobs: interface {
     process-order-fulfillment: func(order-id: string) -> result<_, job-error>
     send-abandoned-cart-reminder: func(cart-id: string) -> result<_, job-error>
     generate-daily-reports: func(date: string) -> result<_, job-error>
   }
-  
+
   export webhooks: interface {
     handle-payment-webhook: func(provider: string, payload: bytes, signature: string) -> result<webhook-response, webhook-error>
     handle-shipping-webhook: func(carrier: string, payload: bytes) -> result<webhook-response, webhook-error>
@@ -516,7 +516,7 @@ world ecommerce-app {
 # apps/ecommerce-app/components.toml
 [infrastructure]
 auth = "components/okta-auth.wasm"
-sql = "components/postgres-sql.wasm"  
+sql = "components/postgres-sql.wasm"
 kv = "components/redis-kv.wasm"
 email = "components/sendgrid-email.wasm"
 logging = "components/datadog-logging.wasm"
@@ -526,7 +526,7 @@ object-store = "components/s3-object-store.wasm"
 
 [business-logic]
 http-handler = "components/ecommerce-api.wasm"
-background-jobs = "components/ecommerce-jobs.wasm" 
+background-jobs = "components/ecommerce-jobs.wasm"
 webhooks = "components/ecommerce-webhooks.wasm"
 ```
 
@@ -569,14 +569,14 @@ impl HttpHandler for HttpHandlerImpl {
                 // Use infrastructure imports
                 let user = auth::authenticate(&req.headers.get("authorization")?)?;
                 auth::authorize(&user, "create", "order")?;
-                
+
                 let order_id = create_order_in_db(&req.body)?;
-                email::send_transactional(&user.email, "order-confirmation", 
+                email::send_transactional(&user.email, "order-confirmation",
                     vec![("order_id", order_id.clone())]);
-                
-                logging::log(LogLevel::Info, "Order created", 
+
+                logging::log(LogLevel::Info, "Order created",
                     vec![("user_id", user.id), ("order_id", order_id)]);
-                
+
                 HttpResponse::ok(format!("{{\"order_id\": \"{}\"}}", order_id))
             }
             _ => HttpResponse::not_found()
@@ -610,7 +610,7 @@ world ecommerce-app {
   import sql: interface { /* same as before */ }
   import email: interface { /* same as before */ }
   // ... other infrastructure
-  
+
   // === BUSINESS DOMAIN EXPORTS ===
   export catalog-management: interface {
     create-product: func(product: product-data) -> result<product-id, catalog-error>
@@ -618,32 +618,32 @@ world ecommerce-app {
     search-products: func(query: string, filters: search-filters) -> result<list<product>, catalog-error>
     get-product-recommendations: func(user: user-id, context: recommendation-context) -> list<product>
   }
-  
+
   export order-processing: interface {
     create-order: func(cart: shopping-cart, payment-method: payment-method) -> result<order, order-error>
     update-order-status: func(order-id: order-id, status: order-status) -> result<_, order-error>
     calculate-shipping: func(items: list<cart-item>, address: shipping-address) -> result<shipping-quote, shipping-error>
     process-return: func(order-id: order-id, items: list<return-item>, reason: string) -> result<return-id, return-error>
   }
-  
+
   export customer-management: interface {
     create-customer-profile: func(registration: customer-registration) -> result<customer, customer-error>
     update-preferences: func(customer-id: customer-id, prefs: customer-preferences) -> result<_, customer-error>
     get-purchase-history: func(customer-id: customer-id) -> list<order-summary>
     handle-loyalty-program: func(customer-id: customer-id, action: loyalty-action) -> result<loyalty-status, loyalty-error>
   }
-  
+
   export payment-processing: interface {
     process-payment: func(order-id: order-id, payment-details: payment-details) -> result<payment-confirmation, payment-error>
     handle-refund: func(payment-id: payment-id, amount: option<u32>) -> result<refund-confirmation, payment-error>
     validate-payment-method: func(payment-method: payment-method) -> result<validation-result, payment-error>
   }
-  
+
   // === INFRASTRUCTURE EXPORTS (for external integrations) ===
   export http-handler: interface {
     handle-request: func(req: http-request) -> http-response
   }
-  
+
   export webhook-handler: interface {
     handle-webhook: func(source: string, payload: bytes, signature: string) -> result<webhook-response, webhook-error>
   }
@@ -662,7 +662,7 @@ email = "components/sendgrid-email.wasm"
 
 [business-domains]
 catalog-management = "components/catalog-service.wasm"
-order-processing = "components/order-service.wasm" 
+order-processing = "components/order-service.wasm"
 customer-management = "components/customer-service.wasm"
 payment-processing = "components/payment-service.wasm"
 
@@ -686,19 +686,19 @@ impl OrderProcessing for OrderProcessingImpl {
     fn create_order(cart: ShoppingCart, payment_method: PaymentMethod) -> Result<Order, OrderError> {
         // Pure business logic - validate cart, calculate totals, apply discounts
         let order = validate_and_build_order(cart)?;
-        
+
         // Use infrastructure to persist
         let order_id = sql::query("INSERT INTO orders...", order.to_sql_params())?;
-        
+
         // Trigger domain events
-        email::send_transactional(&order.customer_email, "order-confirmation", 
+        email::send_transactional(&order.customer_email, "order-confirmation",
             order.template_vars());
-        
+
         // Update inventory through catalog domain
         for item in &order.items {
             catalog_management::update_inventory(&item.sku, item.quantity)?;
         }
-        
+
         Ok(order)
     }
 }
@@ -758,7 +758,7 @@ export user-lifecycle: interface {
 ```toml
 [business-domains]
 collaborative-docs = "components/collaborative-docs.wasm"
-subscription-billing = "components/subscription-billing.wasm" 
+subscription-billing = "components/subscription-billing.wasm"
 user-lifecycle = "components/user-lifecycle.wasm"
 notification-orchestration = "components/notification-orchestration.wasm"
 ```
@@ -768,7 +768,7 @@ notification-orchestration = "components/notification-orchestration.wasm"
 [business-domains]
 live-streaming = "components/live-streaming.wasm"
 subscription-billing = "components/subscription-billing.wasm"
-user-lifecycle = "components/user-lifecycle.wasm" 
+user-lifecycle = "components/user-lifecycle.wasm"
 notification-orchestration = "components/notification-orchestration.wasm"
 content-moderation = "components/content-moderation.wasm"
 ```
@@ -777,7 +777,7 @@ content-moderation = "components/content-moderation.wasm"
 ```toml
 [business-domains]
 collaborative-docs = "components/collaborative-docs.wasm"    # For course materials
-live-streaming = "components/live-streaming.wasm"           # For live classes  
+live-streaming = "components/live-streaming.wasm"           # For live classes
 subscription-billing = "components/subscription-billing.wasm"
 user-lifecycle = "components/user-lifecycle.wasm"
 progress-tracking = "components/progress-tracking.wasm"     # Domain-specific
@@ -798,11 +798,11 @@ impl HttpHandler for TeamCollabApi {
                 let doc = collaborative_docs::create_document(user_id, DocumentType::Workspace)?;
                 let onboarding = user_lifecycle::track_activation(user_id, ActivationMilestone::FirstDocument)?;
                 notification_orchestration::send_notification(
-                    WorkflowId::DocumentCreated, 
-                    team_members, 
+                    WorkflowId::DocumentCreated,
+                    team_members,
                     doc.notification_context()
                 )?;
-                
+
                 // Return UX-optimized response
                 HttpResponse::ok(TeamCollabDocumentResponse::from(doc))
             }
@@ -862,12 +862,12 @@ impl DocumentApi for CollabDocApi {
     fn create_document(user: UserId, doc_data: DocumentData) -> Result<Document> {
         // Core business logic only - no cross-cutting concerns
         let doc = collaborative_docs::create_document(user, doc_data)?;
-        
+
         // These calls happen but feel "aspectual"
         billing::record_usage_event(user, UsageEvent::DocumentCreated)?;
         user_lifecycle::track_milestone(user, Milestone::DocumentCreation)?;
         notification_orchestration::trigger_workflow(WorkflowId::NewDocument, doc.context())?;
-        
+
         Ok(doc)
     }
 }
@@ -890,7 +890,7 @@ Exactly! You're seeing the **recursive composability** of the Component Model - 
 ```
 Product Layer (Your SaaS Apps)
 ├─ team-collaboration.wasm
-├─ live-streaming.wasm  
+├─ live-streaming.wasm
 └─ e-learning.wasm
     │
     └── Business Domain Layer
@@ -923,27 +923,27 @@ world subscription-billing {
     record-metric: func(name: string, value: f64, tags: list<tuple<string, string>>)
     log-event: func(level: log-level, event: billing-event)
   }
-  
+
   import security-context: interface {
     validate-permission: func(user: user-id, action: string, resource: string) -> result<_, security-error>
     audit-log: func(user: user-id, action: audit-action, resource: string)
     encrypt-sensitive-data: func(data: bytes) -> encrypted-data
   }
-  
+
   import rate-limiting: interface {
     check-rate-limit: func(key: string, window: duration, max-requests: u32) -> result<_, rate-limit-error>
     record-request: func(key: string, cost: u32)
   }
-  
+
   import feature-flags: interface {
     is-enabled: func(flag: string, context: feature-context) -> bool
     get-variant: func(experiment: string, context: feature-context) -> experiment-variant
   }
-  
+
   // Infrastructure that platform services need
   import sql: interface { /* same interface, different implementation context */ }
   import kv: interface { /* same interface, different implementation context */ }
-  
+
   // What billing exports to product layer
   export subscription-billing: interface {
     create-subscription: func(customer: customer-id, plan: billing-plan) -> result<subscription, billing-error>
@@ -960,45 +960,45 @@ impl SubscriptionBilling for BillingImpl {
     fn create_subscription(customer: CustomerId, plan: BillingPlan) -> Result<Subscription, BillingError> {
         // Security enforcement happens automatically
         security_context::validate_permission(
-            current_user(), 
-            "create", 
+            current_user(),
+            "create",
             &format!("subscription:{}", customer)
         )?;
-        
+
         // Rate limiting is transparent
         rate_limiting::check_rate_limit(
-            &format!("billing:create:{}", customer), 
-            Duration::minutes(5), 
+            &format!("billing:create:{}", customer),
+            Duration::minutes(5),
             10
         )?;
-        
+
         // Feature flags control rollouts
-        if !feature_flags::is_enabled("advanced_billing_v2", 
+        if !feature_flags::is_enabled("advanced_billing_v2",
             FeatureContext::customer(customer)) {
             return create_subscription_v1(customer, plan);
         }
-        
+
         // Observability wraps the operation
-        let span = observability::trace_operation("create_subscription", 
+        let span = observability::trace_operation("create_subscription",
             TraceMetadata::from_params(customer, plan));
-        
+
         let result = {
             // Core billing logic
             let subscription = build_subscription(customer, plan);
             sql::query("INSERT INTO subscriptions...", subscription.to_params())?;
-            
+
             // Audit trail
-            security_context::audit_log(customer, 
-                AuditAction::SubscriptionCreated, 
+            security_context::audit_log(customer,
+                AuditAction::SubscriptionCreated,
                 subscription.id());
-            
+
             // Metrics
-            observability::record_metric("subscriptions.created", 1.0, 
+            observability::record_metric("subscriptions.created", 1.0,
                 vec![("plan", plan.name()), ("customer_tier", customer.tier())]);
-                
+
             subscription
         };
-        
+
         observability::end_span(span);
         Ok(result)
     }

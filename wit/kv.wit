@@ -1,0 +1,30 @@
+interface kv {
+    variant kv-value {
+        text(string),
+        bytes(list<u8>),
+        int64(s64),
+        float64(f64),
+        boolean(bool),
+    }
+    
+    variant kv-error {
+        connection-failed(string),
+        key-not-found(string),
+        serialization-failed(string),
+        operation-failed(string),
+    }
+    
+    record scan-result {
+        keys: list<string>,
+        cursor: option<string>,
+    }
+    
+    get: func(key: string) -> result<option<kv-value>, kv-error>;
+    set: func(key: string, value: kv-value) -> result<_, kv-error>;
+    set-with-ttl: func(key: string, value: kv-value, ttl-seconds: u32) -> result<_, kv-error>;
+    delete: func(key: string) -> result<bool, kv-error>;
+    exists: func(key: string) -> result<bool, kv-error>;
+    increment: func(key: string, delta: s64) -> result<s64, kv-error>;
+    expire: func(key: string, ttl-seconds: u32) -> result<bool, kv-error>;
+    scan: func(pattern: string, cursor: option<string>, limit: option<u32>) -> result<scan-result, kv-error>;
+}
