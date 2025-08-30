@@ -1,0 +1,3 @@
+commit:
+    llmc
+    git push
