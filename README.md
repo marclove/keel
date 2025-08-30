@@ -2,6 +2,11 @@
 
 > **Status**: Early development (Phase 1). This project is actively developed and welcomes community contributions.
 
+> [!WARNING]
+> Keel is pre-release, alpha-stage software. It's API is not stable and backward compatibility will not be
+> provided until we reach stability. We want the freedom to cleanly and quickly rearchitect Keel until we've settled
+> on stable patterns.
+
 Keel is a composable SaaS architecture built on the [WASI Component Model](https://component-model.bytecodealliance.org/) to create reusable business capabilities. Build multiple SaaS products by composing business domain components, with infrastructure adapters that can be swapped via configuration.
 
 ## Spin Framework

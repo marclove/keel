@@ -6,6 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Keel is a composable SaaS architecture project using the WASI Component Model to create reusable business capabilities. The goal is to build a suite of infrastructure and business domain components that can be composed to rapidly develop new SaaS applications.
 
+> [!WARNING]
+> Keel is pre-release, alpha-stage software. It's API is not stable and backward compatibility will not be
+> provided until we reach stability. We want the freedom to cleanly and quickly rearchitect Keel until we've settled
+> on stable patterns.
+
 ## Spin Framework
 
 We use the [Spin framework](https://spinframework.dev) to build and run event-driven microservice applications composed of WebAssembly (Wasm) components.
