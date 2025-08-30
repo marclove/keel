@@ -4,6 +4,21 @@
 
 Keel is a composable SaaS architecture built on the [WASI Component Model](https://component-model.bytecodealliance.org/) to create reusable business capabilities. Build multiple SaaS products by composing business domain components, with infrastructure adapters that can be swapped via configuration.
 
+## Spin Framework
+
+We use the [Spin framework](https://spinframework.dev) to build and run event-driven microservice applications composed of WebAssembly (Wasm) components.
+
+- Fast cold starts: Wasm is sandboxed, portable, and fast — millisecond cold start times remove the need to keep apps “warm”.
+- Language flexibility: Many languages have Wasm implementations; build components in the language you prefer.
+- Open and portable: Spin is open source, under the CNCF, and built on standards, with implementations for local development, self-hosted servers, Kubernetes, and cloud-hosted services.
+
+What Spin enables (non-exhaustive):
+- Triggers: HTTP, Redis, Cron, with a simple trigger model for event-driven apps.
+- Developer workflow: Creating apps, application structure, building, running, testing, observability, troubleshooting, runtime configuration.
+- Feature APIs: Making HTTP requests, Key-Value store, SQLite database, MQTT messaging, Redis storage, relational databases, Serverless AI, variables.
+
+These capabilities let us compose business components and attach the right triggers and platform features at the edges while keeping core logic portable.
+
 ## Quick Start
 
 ```bash
@@ -13,6 +28,8 @@ cd keel
 
 # One-time setup
 just init              # adds wasm target (wasm32-wasip2), installs JS deps
+# Or do everything including Spin CLI (Homebrew if available)
+just setup
 
 # Build (native or WASM)
 just build             # native workspace build
@@ -26,6 +43,34 @@ just test              # workspace tests (unit + BDD)
 # or target a single crate
 just test-crate sql-sqlite
 ```
+
+## Spin Quickstart
+
+Spin powers our event-driven Wasm apps. If the Spin CLI is installed and you have a Spin app directory (with `spin.toml`):
+
+```bash
+# Check Spin availability and version
+just spin-check
+
+# Scaffold a new app (example template)
+just spin-new http-rust my-app
+cd my-app
+
+# Build and run locally
+just spin-build .
+just spin-up .
+
+# Watch for changes
+just spin-watch .
+
+# Deploy to Fermyon Cloud
+just spin-cloud-login
+just spin-cloud-deploy .
+```
+
+Install Spin: https://developer.fermyon.com/spin/v2/index
+Or run `just setup` to install prerequisites and Spin. On Linux, `setup`/`spin-install` will attempt to use your package manager (apt/dnf/yum/pacman/zypper) and the official installer script.
+On Windows: run `just spin-install-windows` to see native Windows options; on WSL, use the Linux steps above.
 
 ## Architecture Overview
 
@@ -89,6 +134,15 @@ template-repository = "template-repository.wasm"
 - **[Roadmap](ROADMAP.md)** - Development phases and timeline
 - **[FAQ](FAQ.md)** - Common questions about architecture, components, and development
 - **[Contributing](CONTRIBUTING.md)** - How to contribute components and improvements
+- **[Spin + Keel](SPIN.md)** - How we use Spin, local setup, and workflows
+
+### Deployment Targets
+
+In addition to generic Spin-compatible runtimes, we consider leveraging the following to accelerate delivery:
+- [Fermyon Cloud](https://developer.fermyon.com/cloud/index) — managed hosting for Spin applications.
+- [Fermyon Wasm Functions](https://developer.fermyon.com/wasm-functions/index) — function-level deployments that map well to Spin’s event-driven model.
+
+These options provide much of the desired operational functionality out of the box and may help us get to market faster.
 
 ## Current Status
 
@@ -106,6 +160,7 @@ See the [Roadmap](ROADMAP.md) for upcoming phases and target dates.
 
 - help: List all available tasks.
 - init: Install `wasm32-wasip2` and JS deps.
+- setup: Run `init` and install Spin CLI (Homebrew if available), then verify with `spin-check`.
 - build / build-release: Native builds (debug/release).
 - build-wasm / build-wasm-release: WASM builds for `wasm32-wasip2`.
 - transpile: Transpile WASM to JS using `jco`.
@@ -116,6 +171,15 @@ See the [Roadmap](ROADMAP.md) for upcoming phases and target dates.
 - tree: Show workspace dependency tree.
 - watch-tests: Re-run tests on change (requires `cargo-watch`).
 - wit-list / wit-print <name>: Explore WIT files.
+
+Spin helpers:
+- spin-check: Verify Spin CLI is installed and print version.
+- spin-new <template> <name>: Scaffold a new Spin app from a template.
+- spin-build [dir='.']: Build a Spin app in a directory.
+- spin-up [dir='.']: Run a Spin app locally.
+- spin-watch [dir='.']: Watch a Spin app for changes.
+- spin-cloud-login: Authenticate with Fermyon Cloud.
+- spin-cloud-deploy [dir='.']: Deploy a Spin app to Fermyon Cloud.
 
 ## Community
 

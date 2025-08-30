@@ -6,6 +6,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Keel is a composable SaaS architecture project using the WASI Component Model to create reusable business capabilities. The goal is to build a suite of infrastructure and business domain components that can be composed to rapidly develop new SaaS applications.
 
+## Spin Framework
+
+We use the [Spin framework](https://spinframework.dev) to build and run event-driven microservice applications composed of WebAssembly (Wasm) components.
+
+- Wasm advantages: sandboxed, portable, and fast; millisecond cold starts remove the need to keep applications “warm”.
+- Language choice: many languages have Wasm implementations so developers don’t need to learn new languages or libraries.
+- Open and portable: Spin is open source under the CNCF and built on standards, with implementations for local development, self-hosted servers, Kubernetes, and cloud-hosted services.
+
+When designing or modifying components, consider how Spin’s capabilities map to Keel’s layers:
+- Triggers: HTTP, Redis, Cron for event-driven entry points.
+- Developer workflow: creating apps, application structure, building, running, testing, observability, troubleshooting, runtime configuration.
+- Feature APIs: HTTP requests, Key-Value store, SQLite, MQTT, Redis storage, relational databases, Serverless AI, variables.
+
+Prefer using these facilities over bespoke implementations when appropriate, and keep WIT contracts aligned with the chosen triggers and feature APIs.
+
 ## Architecture Philosophy
 
 The project follows a hierarchical component model with multiple layers:
@@ -62,6 +77,14 @@ The project has comprehensive documentation organized by topic:
 - Provider abstraction through Repository Layer pattern
 - BDD testing at every architectural layer
 - Global coordination while maintaining edge performance
+
+## Deployment Targets
+
+In addition to generic Spin-compatible runtimes, we consider using:
+- [Fermyon Cloud](https://developer.fermyon.com/cloud/index) for managed Spin app hosting.
+- [Fermyon Wasm Functions](https://developer.fermyon.com/wasm-functions/index) for function-level deployments aligned with Spin’s event-driven model.
+
+Agents should keep these targets in mind when making trade-offs (e.g., storage choices, trigger selection) to shorten time-to-market.
 
 ## Dev Workflow (For Agents)
 

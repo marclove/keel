@@ -18,6 +18,48 @@ init:
     elif command -v npm >/dev/null 2>&1; then npm install; \
     else echo "No Node package manager found (pnpm/npm)" >&2; exit 1; fi
 
+# Install Spin CLI if missing (prefers Homebrew on macOS)
+spin-install:
+    if command -v spin >/dev/null 2>&1; then \
+      echo "Spin already installed: $$(spin --version)"; \
+    elif command -v brew >/dev/null 2>&1; then \
+      brew tap fermyon/tap && brew install spin; \
+    elif command -v apt-get >/dev/null 2>&1; then \
+      sudo apt-get update && sudo apt-get install -y curl ca-certificates; \
+      curl -fsSL https://developer.fermyon.com/downloads/spin/install.sh | bash; \
+    elif command -v dnf >/dev/null 2>&1; then \
+      sudo dnf install -y curl; \
+      curl -fsSL https://developer.fermyon.com/downloads/spin/install.sh | bash; \
+    elif command -v yum >/dev/null 2>&1; then \
+      sudo yum install -y curl; \
+      curl -fsSL https://developer.fermyon.com/downloads/spin/install.sh | bash; \
+    elif command -v pacman >/dev/null 2>&1; then \
+      sudo pacman -Sy --noconfirm curl; \
+      curl -fsSL https://developer.fermyon.com/downloads/spin/install.sh | bash; \
+    elif command -v zypper >/dev/null 2>&1; then \
+      sudo zypper install -y curl; \
+      curl -fsSL https://developer.fermyon.com/downloads/spin/install.sh | bash; \
+    else \
+      echo "Spin CLI not found and Homebrew unavailable." >&2; \
+      echo "If on Linux/WSL, install curl and run: curl -fsSL https://developer.fermyon.com/downloads/spin/install.sh | bash" >&2; \
+      echo "On native Windows, use winget/choco or see the official guide: https://developer.fermyon.com/spin/v2/install" >&2; \
+      exit 1; fi
+
+# One-shot setup: toolchains, JS deps, and Spin CLI
+setup:
+    just init
+    just spin-install
+    just spin-check
+
+# Print Windows install instructions (native Windows / PowerShell)
+spin-install-windows:
+    echo "Spin installation on Windows (native):"; \
+    echo "- Recommended: follow the official guide: https://developer.fermyon.com/spin/v2/install"; \
+    echo "- If you use winget, try:   winget install Fermyon.Spin   (or search: winget search Spin)"; \
+    echo "- If you use Chocolatey, try:   choco install spin   (package availability may vary)"; \
+    echo "- Alternatively, download the latest MSI from the releases linked in the docs."; \
+    echo "WSL users: run 'just spin-install' from WSL to use the Linux path."
+
 # Build all Rust crates (native)
 build:
     cargo build --workspace
@@ -97,3 +139,53 @@ wit-list:
 # Print a WIT file (example: just wit-print world)
 wit-print name:
     if [ -f "wit/{{ name }}.wit" ]; then cat "wit/{{ name }}.wit"; else echo "wit/{{ name }}.wit not found" >&2; exit 1; fi
+
+# -------------------------
+# Spin framework helpers
+# -------------------------
+
+# Verify Spin CLI is installed
+spin-check:
+    if command -v spin >/dev/null 2>&1; then spin --version; \
+    else echo "Spin CLI not found. Install from https://developer.fermyon.com/spin/v2/index" >&2; exit 1; fi
+
+# Create a new Spin app from a template
+# Usage: just spin-new http-rust my-app
+spin-new template name:
+    if command -v spin >/dev/null 2>&1; then \
+      spin new {{ template }} {{ name }}; \
+    else echo "Spin CLI not found. Install from https://developer.fermyon.com/spin/v2/index" >&2; exit 1; fi
+
+# Build a Spin app in a directory (default '.')
+spin-build dir='.':
+    if command -v spin >/dev/null 2>&1; then \
+      (cd {{ dir }} && spin build); \
+    else echo "Spin CLI not found. Install from https://developer.fermyon.com/spin/v2/index" >&2; exit 1; fi
+
+# Run a Spin app locally (default '.')
+spin-up dir='.':
+    if command -v spin >/dev/null 2>&1; then \
+      (cd {{ dir }} && spin up); \
+    else echo "Spin CLI not found. Install from https://developer.fermyon.com/spin/v2/index" >&2; exit 1; fi
+
+# Watch a Spin app for changes and rebuild/restart
+spin-watch dir='.':
+    if command -v spin >/dev/null 2>&1; then \
+      (cd {{ dir }} && spin watch); \
+    else echo "Spin CLI not found. Install from https://developer.fermyon.com/spin/v2/index" >&2; exit 1; fi
+
+# Login to Fermyon Cloud (tries modern and legacy commands)
+spin-cloud-login:
+    if command -v spin >/dev/null 2>&1; then \
+      if spin help login >/dev/null 2>&1; then spin login; \
+      elif spin cloud --help >/dev/null 2>&1; then spin cloud login; \
+      else echo "Spin installed but no cloud login command found." >&2; exit 1; fi; \
+    else echo "Spin CLI not found. Install from https://developer.fermyon.com/spin/v2/index" >&2; exit 1; fi
+
+# Deploy a Spin app to Fermyon Cloud (tries modern and legacy commands)
+spin-cloud-deploy dir='.':
+    if command -v spin >/dev/null 2>&1; then \
+      if spin help deploy >/dev/null 2>&1; then (cd {{ dir }} && spin deploy); \
+      elif spin cloud --help >/dev/null 2>&1; then (cd {{ dir }} && spin cloud deploy); \
+      else echo "Spin installed but no deploy command found." >&2; exit 1; fi; \
+    else echo "Spin CLI not found. Install from https://developer.fermyon.com/spin/v2/index" >&2; exit 1; fi
