@@ -1,0 +1,8 @@
+pre-commit:
+  parallel: false
+  commands:
+    fmt:
+      run: just fmt
+      stage_fixed: true
+      # Ensures rustfmt changes are re-staged before committing
+

@@ -4,10 +4,31 @@ e2e_url := "http://127.0.0.1:3000"
 help:
     @just --list
 
+# One-shot setup: toolchains, JS deps, and Spin CLI
+setup:
+    just init
+    just spin-install
+    just spin-check
+    just spin-install-plugins
+    just lefthook-install
+
 # Quick commit via llmc, then push (existing behavior)
 commit:
     llmc
     git push
+
+# Install Lefthook and Git hooks
+lefthook-install:
+    if command -v lefthook >/dev/null 2>&1; then \
+      lefthook install; \
+    elif command -v brew >/dev/null 2>&1; then \
+      brew install lefthook && lefthook install; \
+    elif command -v npm >/dev/null 2>&1; then \
+      npm i -g lefthook && lefthook install; \
+    else \
+      echo "Install lefthook from https://github.com/evilmartians/lefthook (or 'brew install lefthook' / 'npm i -g lefthook')" >&2; \
+      exit 1; \
+    fi
 
 # Install toolchains and JS deps (Rust + Node)
 
@@ -44,13 +65,6 @@ spin-install:
       echo "If on Linux/WSL, install curl and run: curl -fsSL https://developer.fermyon.com/downloads/spin/install.sh | bash" >&2; \
       echo "On native Windows, use winget/choco or see the official guide: https://developer.fermyon.com/spin/v2/install" >&2; \
       exit 1; fi
-
-# One-shot setup: toolchains, JS deps, and Spin CLI
-setup:
-    just init
-    just spin-install
-    just spin-check
-    just spin-install-plugins
 
 # Print Windows install instructions (native Windows / PowerShell)
 spin-install-windows:

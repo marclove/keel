@@ -12,8 +12,8 @@ mod bindings {
     });
 }
 
-use bindings::exports::keel::infrastructure::sql::{self as wit_sql};
 use crate::bindings::export;
+use bindings::exports::keel::infrastructure::sql::{self as wit_sql};
 
 // Map WIT sql-value to Spin SQLite Value
 fn to_spin_value(v: &wit_sql::SqlValue) -> Result<SpinValue, wit_sql::SqlError> {
