@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build:components": "cargo build --workspace --target wasm32-wasip2",
-    "build:js": "mkdir -p dist && jco transpile target/wasm32-wasip2/debug/sql_sqlite.wasm -o dist && jco transpile target/wasm32-wasip2/debug/sql_cloudflare_do.wasm -o dist",
+    "build:js": "mkdir -p dist && jco transpile target/wasm32-wasip2/debug/sql_spin_sqlite.wasm -o dist && jco transpile target/wasm32-wasip2/debug/kv_rocksdb.wasm -o dist",
     "test:bdd": "cargo test --workspace",
     "test:integration": "cargo test --test integration",
     "dev": "cargo run --bin keel-host",
