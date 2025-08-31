@@ -73,6 +73,11 @@ struct NewUser {
 
 fn create_user(req: Request) -> Result<Response> {
     let db = Connection::open_default()?;
+    // Defensive: ensure table exists in case setup wasn't called
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT)",
+        &[],
+    )?;
     let body = req.body();
     let nu: NewUser = serde_json::from_slice(body)?;
     db.execute(
@@ -98,6 +103,11 @@ struct UserOut {
 
 fn list_users() -> Result<Response> {
     let db = Connection::open_default()?;
+    // Defensive: ensure schema exists if setup hasn't been called
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT)",
+        &[],
+    )?;
     let qr = db.execute("SELECT id, name, email FROM users ORDER BY id", &[])?;
     let mut users = Vec::new();
     for row in &qr.rows {

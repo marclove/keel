@@ -52,6 +52,25 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Ensure database schema exists before health polling
+echo "[e2e-run] Initializing app schema via $E2E_URL/setup ..."
+setup_ready=0
+for i in $(seq 1 60); do
+  if curl -fsS -X POST "$E2E_URL/setup" >/dev/null 2>&1; then setup_ready=1; break; fi
+  sleep 0.25
+done
+
+if [ "$setup_ready" -ne 1 ]; then
+  echo "[e2e-run] Setup endpoint did not succeed. Recent log:"
+  tail -n 100 "$APP_DIR/.spin/e2e-run.log" || true
+  if command -v ss >/dev/null 2>&1; then
+    echo "[e2e-run] Listening sockets (ss -ltn):"; ss -ltn || true
+  elif command -v netstat >/dev/null 2>&1; then
+    echo "[e2e-run] Listening sockets (netstat -tln):"; netstat -tln || true
+  fi
+  exit 1
+fi
+
 echo "[e2e-run] Waiting for readiness at $E2E_URL/users ..."
 ready=0
 for i in $(seq 1 60); do
