@@ -1,9 +1,0 @@
-package keel:infrastructure@0.1.0;
-
-world sql-adapter {
-    export sql;
-}
-
-world kv-adapter {
-    export kv;
-}

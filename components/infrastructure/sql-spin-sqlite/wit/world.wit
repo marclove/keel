@@ -42,3 +42,7 @@ interface sql {
     execute: func(sql: string, params: list<sql-value>) -> result<u64, sql-error>;
     begin-transaction: func() -> result<transaction, sql-error>;
 }
+
+world sql-adapter {
+    export sql;
+}

@@ -1,8 +1,6 @@
 [workspace]
 resolver = "2"
 members = [
-    "components/infrastructure/sql-sqlite",
-    "components/infrastructure/sql-cloudflare-do",
     "components/infrastructure/sql-spin-sqlite",
     "components/infrastructure/kv-rocksdb",
     "crates/keel-testing",
@@ -10,7 +8,7 @@ members = [
 ]
 
 [workspace.dependencies]
-wit-bindgen = "0.36"
+wit-bindgen = "0.45"
 wasmtime = "25"
 wasmtime-wasi = "25"
 tokio = { version = "1.0", features = ["sync", "macros", "io-util", "rt", "time"] }

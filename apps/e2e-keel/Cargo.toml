@@ -8,9 +8,9 @@ crate-type = ["cdylib"]
 name = "e2e_keel"
 
 [dependencies]
-anyhow = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 spin-sdk = "3"
-tracing = { workspace = true }
+tracing = "0.1"
 urlencoding = "2"

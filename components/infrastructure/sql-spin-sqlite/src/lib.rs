@@ -1,19 +1,20 @@
-#![deny(unsafe_code)]
+#![cfg_attr(not(target_arch = "wasm32"), deny(unsafe_code))]
+#![cfg_attr(target_arch = "wasm32", allow(unsafe_code))]
+#![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 //! Spin-backed SQLite implementation of the `sql` WIT interface.
 //! Uses Spin's host-provided SQLite for performance and simplicity.
 
 use spin_sdk::sqlite::{Connection, QueryResult as SpinQueryResult, Value as SpinValue};
 
+#[macro_use]
 mod bindings {
     #![allow(unsafe_code)]
-    wit_bindgen::generate!({
-        world: "sql-adapter",
-        path: "../../../wit",
-    });
+    #![allow(unsafe_op_in_unsafe_fn)]
+    #![allow(unused_attributes)]
+    include!("generated/sql_adapter.rs");
 }
 
-use crate::bindings::export;
-use bindings::exports::keel::infrastructure::sql::{self as wit_sql};
+use crate::bindings::exports::keel::infrastructure::sql::{self as wit_sql};
 
 // Map WIT sql-value to Spin SQLite Value
 fn to_spin_value(v: &wit_sql::SqlValue) -> Result<SpinValue, wit_sql::SqlError> {
@@ -125,7 +126,8 @@ impl wit_sql::GuestTransaction for Transaction {
 }
 
 // Export the component entry points
-export!(Adapter);
+#[cfg(target_arch = "wasm32")]
+bindings::export!(Adapter with_types_in bindings);
 
 fn exec_query(
     sql: &str,
@@ -179,4 +181,83 @@ fn exec_execute_on(
     conn.execute(sql, values.as_slice())
         .map_err(|e| map_err(e, "query"))?;
     Ok(0)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn to_spin_value_maps_all_variants() {
+        use wit_sql::SqlValue as W;
+
+        assert!(matches!(to_spin_value(&W::Null).unwrap(), SpinValue::Null));
+        assert!(matches!(
+            to_spin_value(&W::Boolean(true)).unwrap(),
+            SpinValue::Integer(1)
+        ));
+        assert!(matches!(
+            to_spin_value(&W::Boolean(false)).unwrap(),
+            SpinValue::Integer(0)
+        ));
+        assert!(matches!(
+            to_spin_value(&W::Int32(7)).unwrap(),
+            SpinValue::Integer(7)
+        ));
+        assert!(matches!(
+            to_spin_value(&W::Int64(9)).unwrap(),
+            SpinValue::Integer(9)
+        ));
+        assert!(
+            matches!(to_spin_value(&W::Float32(1.5)).unwrap(), SpinValue::Real(x) if (x-1.5).abs() < 1e-6)
+        );
+        assert!(
+            matches!(to_spin_value(&W::Float64(2.5)).unwrap(), SpinValue::Real(x) if (x-2.5).abs() < 1e-12)
+        );
+        assert!(
+            matches!(to_spin_value(&W::Text("hi".into())).unwrap(), SpinValue::Text(s) if s=="hi")
+        );
+        assert!(
+            matches!(to_spin_value(&W::Bytes(vec![1,2])).unwrap(), SpinValue::Blob(b) if b==vec![1,2])
+        );
+        assert!(matches!(
+            to_spin_value(&W::Timestamp(123)).unwrap(),
+            SpinValue::Integer(123)
+        ));
+        assert!(
+            matches!(to_spin_value(&W::Uuid("abc".into())).unwrap(), SpinValue::Text(s) if s=="abc")
+        );
+    }
+
+    #[test]
+    fn row_to_wit_roundtrip_basic() {
+        let cols = vec![
+            "a".to_string(),
+            "b".to_string(),
+            "c".to_string(),
+            "d".to_string(),
+            "e".to_string(),
+        ];
+        let values = vec![
+            SpinValue::Null,
+            SpinValue::Integer(42),
+            SpinValue::Real(3.5),
+            SpinValue::Text("ok".into()),
+            SpinValue::Blob(vec![9, 8, 7]),
+        ];
+
+        let row = row_to_wit(&cols, &values);
+        assert_eq!(row.columns.len(), cols.len());
+        for (i, (name, v)) in row.columns.iter().enumerate() {
+            assert_eq!(name, &cols[i]);
+            match (i, v) {
+                (0, wit_sql::SqlValue::Null) => {}
+                (1, wit_sql::SqlValue::Int64(n)) => assert_eq!(*n, 42),
+                (2, wit_sql::SqlValue::Float64(f)) => assert!((f - 3.5).abs() < 1e-12),
+                (3, wit_sql::SqlValue::Text(s)) => assert_eq!(s, "ok"),
+                (4, wit_sql::SqlValue::Bytes(b)) => assert_eq!(b, &vec![9, 8, 7]),
+                _ => panic!("unexpected mapping at index {}: {:?}", i, v),
+            }
+        }
+    }
 }

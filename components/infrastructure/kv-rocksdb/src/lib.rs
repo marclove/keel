@@ -1,17 +1,18 @@
-#![deny(unsafe_code)]
+#![cfg_attr(not(target_arch = "wasm32"), deny(unsafe_code))]
+#![cfg_attr(target_arch = "wasm32", allow(unsafe_code))]
+#![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 //! Placeholder RocksDB KV adapter implementing `kv` WIT interface.
 //! To be completed with real RocksDB bindings suitable for WASM.
 
+#[macro_use]
 mod bindings {
     #![allow(unsafe_code)]
-    wit_bindgen::generate!({
-        world: "kv-adapter",
-        path: "../../../wit",
-    });
+    #![allow(unsafe_op_in_unsafe_fn)]
+    #![allow(unused_attributes)]
+    include!("generated/kv_adapter.rs");
 }
 
-use crate::bindings::export;
-use bindings::exports::keel::infrastructure::kv as wit_kv;
+use crate::bindings::exports::keel::infrastructure::kv as wit_kv;
 
 struct Adapter;
 
@@ -60,4 +61,5 @@ impl wit_kv::Guest for Adapter {
     }
 }
 
-export!(Adapter);
+#[cfg(target_arch = "wasm32")]
+bindings::export!(Adapter with_types_in bindings);

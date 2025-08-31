@@ -30,3 +30,7 @@ interface kv {
     expire: func(key: string, ttl-seconds: u32) -> result<bool, kv-error>;
     scan: func(pattern: string, cursor: option<string>, limit: option<u32>) -> result<scan-result, kv-error>;
 }
+
+world kv-adapter {
+    export kv;
+}
