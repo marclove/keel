@@ -73,27 +73,37 @@ impl wit_sql::Guest for Adapter {
     }
 
     fn begin_transaction() -> Result<wit_sql::Transaction, wit_sql::SqlError> {
-        Err(wit_sql::SqlError::TransactionFailed("not-implemented".into()))
+        let conn = Connection::open_default().map_err(|e| map_err(e, "connection"))?;
+        conn.execute("BEGIN", &[]).map_err(|e| map_err(e, "transaction"))?;
+        Ok(wit_sql::Transaction::new(Transaction { conn }))
     }
 }
 
-struct Transaction {}
+struct Transaction {
+    conn: Connection,
+}
 
 impl wit_sql::GuestTransaction for Transaction {
     fn query(&self, sql: String, params: Vec<wit_sql::SqlValue>) -> Result<wit_sql::QueryResult, wit_sql::SqlError> {
-        exec_query(&sql, &params)
+        exec_query_on(&self.conn, &sql, &params)
     }
 
     fn execute(&self, sql: String, params: Vec<wit_sql::SqlValue>) -> Result<u64, wit_sql::SqlError> {
-        exec_execute(&sql, &params)
+        exec_execute_on(&self.conn, &sql, &params)
     }
 
     fn commit(&self) -> Result<(), wit_sql::SqlError> {
-        Err(wit_sql::SqlError::TransactionFailed("not-implemented".into()))
+        self.conn
+            .execute("COMMIT", &[])
+            .map_err(|e| map_err(e, "transaction"))?;
+        Ok(())
     }
 
     fn rollback(&self) -> Result<(), wit_sql::SqlError> {
-        Err(wit_sql::SqlError::TransactionFailed("not-implemented".into()))
+        self.conn
+            .execute("ROLLBACK", &[])
+            .map_err(|e| map_err(e, "transaction"))?;
+        Ok(())
     }
 }
 
@@ -115,6 +125,22 @@ fn exec_query(sql: &str, params: &[wit_sql::SqlValue]) -> Result<wit_sql::QueryR
 
 fn exec_execute(sql: &str, params: &[wit_sql::SqlValue]) -> Result<u64, wit_sql::SqlError> {
     let conn = Connection::open_default().map_err(|e| map_err(e, "connection"))?;
+    exec_execute_on(&conn, sql, params)
+}
+
+fn exec_query_on(conn: &Connection, sql: &str, params: &[wit_sql::SqlValue]) -> Result<wit_sql::QueryResult, wit_sql::SqlError> {
+    let values = values_from(params)?;
+    let qr: SpinQueryResult = conn
+        .execute(sql, values.as_slice())
+        .map_err(|e| map_err(e, "query"))?;
+    let mut out_rows = Vec::new();
+    for row in &qr.rows {
+        out_rows.push(row_to_wit(&qr.columns, &row.values));
+    }
+    Ok(wit_sql::QueryResult { rows: out_rows, rows_affected: 0 })
+}
+
+fn exec_execute_on(conn: &Connection, sql: &str, params: &[wit_sql::SqlValue]) -> Result<u64, wit_sql::SqlError> {
     let values = values_from(params)?;
     conn.execute(sql, values.as_slice()).map_err(|e| map_err(e, "query"))?;
     Ok(0)

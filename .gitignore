@@ -40,3 +40,6 @@ dist/
 build/
 
 BRAINSTORMING.md
+
+*.db
+apps/**/.spin/logs/

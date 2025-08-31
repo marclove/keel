@@ -1,0 +1,23 @@
+spin_manifest_version = 2
+
+[application]
+name = "keel-e2e"
+version = "0.1.0"
+description = "E2E app exercising Keel infra components via Spin SQLite"
+
+
+[[trigger.http]]
+route = "/..."
+component = "e2e-api"
+
+[component.e2e-api]
+source = "../../target/wasm32-wasip2/release/e2e_keel.wasm"
+allowed_outbound_hosts = []
+
+# Grant SQLite capability with a default database binding
+sqlite_databases = ["default"]
+environment = { SPIN_SQLITE_DB_default = "sqlite:dev.db" }
+
+[component.e2e-api.build]
+command = "cargo build --target wasm32-wasip2 --release"
+watch = ["src/**/*.rs", "Cargo.toml"]

@@ -1,5 +1,9 @@
 set shell := ["zsh", "-eu", "-o", "pipefail", "-c"]
 
+# Default base URL for the E2E Spin app
+
+e2e_url := "http://127.0.0.1:3000"
+
 # Show all available tasks
 help:
     @just --list
@@ -65,6 +69,8 @@ spin-install-plugins:
     echo "Installing the Fermyon Wasm Functions for Akamai Spin plugin to let us"; \
     echo "to interact with Fermyon Wasm Functions (Login, Deploy, etc.)"
     spin plugin install aka
+    spin plugin install pluginify
+    spin plugin install -u https://github.com/spinframework/spin-test/releases/download/canary/spin-test.json
 
 spin-login:
     spin login
@@ -158,6 +164,45 @@ wit-print name:
 spin-check:
     if command -v spin >/dev/null 2>&1; then spin --version; \
     else echo "Spin CLI not found. Install from https://developer.fermyon.com/spin/v2/index" >&2; exit 1; fi
+
+# -------------------------
+# E2E helper commands
+# -------------------------
+
+# Run all E2E curls in sequence (requires the app running via `just spin-up apps/e2e-keel` in another terminal)
+e2e-smoke:
+    echo "POST /setup";
+    curl -fsS -X POST "{{ e2e_url }}/setup" | sed 's/.*/\n&\n/'
+    echo "POST /users (Alice)";
+    curl -fsS -X POST "{{ e2e_url }}/users" -H 'content-type: application/json' -d '{"name":"Alice","email":"a@example.com"}' | sed 's/.*/\n&\n/'
+    echo "POST /users (Bob)";
+    curl -fsS -X POST "{{ e2e_url }}/users" -H 'content-type: application/json' -d '{"name":"Bob","email":"b@example.com"}' | sed 's/.*/\n&\n/'
+    echo "GET /users";
+    curl -fsS "{{ e2e_url }}/users" | sed 's/.*/\n&\n/'
+    echo "POST /txn/commit";
+    curl -fsS -X POST "{{ e2e_url }}/txn/commit" | sed 's/.*/\n&\n/'
+    echo "POST /txn/rollback";
+    curl -fsS -X POST "{{ e2e_url }}/txn/rollback" | sed 's/.*/\n&\n/'
+
+# POST /setup only
+e2e-setup:
+    curl -fsS -X POST "{{ e2e_url }}/setup"
+
+# POST /users with params: just e2e-user "Alice" "a@example.com"
+e2e-user name email:
+    curl -fsS -X POST "{{ e2e_url }}/users" -H 'content-type: application/json' -d '{"name":"{{ name }}","email":"{{ email }}"}'
+
+# GET /users
+e2e-users:
+    curl -fsS "{{ e2e_url }}/users"
+
+# POST /txn/commit
+e2e-txn-commit:
+    curl -fsS -X POST "{{ e2e_url }}/txn/commit"
+
+# POST /txn/rollback
+e2e-txn-rollback:
+    curl -fsS -X POST "{{ e2e_url }}/txn/rollback"
 
 # Create a new Spin app from a template
 

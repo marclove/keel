@@ -1,0 +1,16 @@
+[package]
+name = "e2e-keel"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+name = "e2e_keel"
+
+[dependencies]
+anyhow = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+spin-sdk = "3"
+tracing = { workspace = true }
+

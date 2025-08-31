@@ -5,7 +5,8 @@ members = [
     "components/infrastructure/sql-cloudflare-do",
     "components/infrastructure/sql-spin-sqlite",
     "components/infrastructure/kv-rocksdb",
-    "crates/keel-testing"
+    "crates/keel-testing",
+    "apps/e2e-keel"
 ]
 
 [workspace.dependencies]
