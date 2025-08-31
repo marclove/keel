@@ -108,7 +108,7 @@ jobs:
       RUSTC_WRAPPER: sccache
       SCCACHE_DIR: ~/.cache/sccache
       SCCACHE_CACHE_SIZE: 2G
-      SPIN_VERSION: "2.7.0"
+      SPIN_VERSION: "3.4.1"
       RUST_LOG: debug
       RUST_BACKTRACE: 1
       CARGO_INCREMENTAL: "0"
