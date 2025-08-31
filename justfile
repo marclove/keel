@@ -1,7 +1,3 @@
-set shell := ["zsh", "-eu", "-o", "pipefail", "-c"]
-
-# Default base URL for the E2E Spin app
-
 e2e_url := "http://127.0.0.1:3000"
 
 # Show all available tasks

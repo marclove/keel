@@ -1,0 +1,259 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-unit:
+    name: Lint + Unit Tests
+    runs-on: ubuntu-latest
+    env:
+      RUSTC_WRAPPER: sccache
+      SCCACHE_DIR: ~/.cache/sccache
+      SCCACHE_CACHE_SIZE: 2G
+      CARGO_INCREMENTAL: "0"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (for tooling)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js cache (pnpm)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: |
+            pnpm-lock.yaml
+
+      - name: Verify Node/pnpm
+        run: |
+          node -v
+          pnpm -v
+
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip2
+
+      - name: Cache sccache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.SCCACHE_DIR }}
+          key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo registry + target
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install sccache (prebuilt)
+        uses: taiki-e/install-action@v2
+        with:
+          tool: sccache@0.7.5
+
+      - name: Install just (prebuilt)
+        uses: taiki-e/install-action@v2
+        with:
+          tool: just@1.28.0
+
+      - name: Verify tools
+        run: |
+          rustc --version
+          cargo --version
+          just --version
+          sccache --version
+
+      - name: Format check
+        run: |
+          just fmt-check
+
+      - name: Clippy (all targets)
+        run: |
+          just clippy
+
+      - name: Unit tests
+        run: |
+          just test
+
+      - name: sccache stats
+        if: always()
+        run: sccache --show-stats || true
+
+  e2e:
+    name: E2E Spin Smoke
+    runs-on: ubuntu-latest
+    env:
+      RUSTC_WRAPPER: sccache
+      SCCACHE_DIR: ~/.cache/sccache
+      SCCACHE_CACHE_SIZE: 2G
+      SPIN_VERSION: "2.7.0"
+      RUST_LOG: debug
+      RUST_BACKTRACE: 1
+      CARGO_INCREMENTAL: "0"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js cache (pnpm)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: |
+            pnpm-lock.yaml
+
+      - name: Verify Node/pnpm
+        run: |
+          node -v
+          pnpm -v
+
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip2
+
+      - name: Cache sccache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.SCCACHE_DIR }}
+          key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo registry + target
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install sccache (prebuilt)
+        uses: taiki-e/install-action@v2
+        with:
+          tool: sccache@0.7.5
+
+      - name: Install just (prebuilt)
+        uses: taiki-e/install-action@v2
+        with:
+          tool: just@1.28.0
+
+      - name: Install Spin CLI
+        run: |
+          # Pin Spin CLI version via env var
+          curl -fsSL https://developer.fermyon.com/downloads/spin/install.sh | bash
+          echo "$HOME/.spin/bin" >> "$GITHUB_PATH"
+
+      - name: Verify Spin version
+        run: |
+          spin --version
+          if ! spin --version | grep -q "${SPIN_VERSION}"; then
+            echo "Expected Spin ${SPIN_VERSION}, but got: $(spin --version)" >&2
+            exit 1
+          fi
+
+      - name: Verify tools
+        run: |
+          rustc --version
+          cargo --version
+          just --version
+          spin --version
+          sccache --version
+
+      - name: Prepare environment via just tasks
+        run: |
+          # Ensure wasm target + JS deps installed via our recipes
+          just init
+          # Verify Spin availability using our helper
+          just spin-check
+
+      - name: Build WASM (sanity)
+        run: |
+          just build-wasm
+
+      - name: Restore dist cache
+        uses: actions/cache/restore@v4
+        with:
+          path: dist
+          key: ${{ runner.os }}-dist-${{ hashFiles('package.json', 'pnpm-lock.yaml', 'package-lock.json', 'justfile', '**/*.wit', 'Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-dist-
+
+      - name: Transpile JS bindings (cached)
+        run: |
+          just transpile
+
+      - name: Cache dist outputs
+        uses: actions/cache/save@v4
+        if: success()
+        with:
+          path: dist
+          key: ${{ runner.os }}-dist-${{ hashFiles('package.json', 'pnpm-lock.yaml', 'package-lock.json', 'justfile', '**/*.wit', 'Cargo.lock') }}
+
+      - name: sccache stats
+        if: always()
+        run: sccache --show-stats || true
+
+      - name: Run E2E smoke
+        run: |
+          just e2e-run
+
+      - name: Upload Spin logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spin-logs
+          path: |
+            apps/e2e-keel/.spin/build.log
+            apps/e2e-keel/.spin/e2e-run.log
+          if-no-files-found: warn
+
+      - name: Upload SQLite db (debug aid)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sqlite-db
+          path: apps/e2e-keel/dev.db
+          if-no-files-found: ignore
+
+      - name: Upload Wasm artifacts (debug aid)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-artifacts
+          path: |
+            target/wasm32-wasip2/release/**/*.wasm
+            target/wasm32-wasip2/debug/**/*.wasm
+          if-no-files-found: warn
