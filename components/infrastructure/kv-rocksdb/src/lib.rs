@@ -23,12 +23,20 @@ impl wit_kv::Guest for Adapter {
         Err(op_err("not implemented"))
     }
 
-    fn set_with_ttl(_key: String, _value: wit_kv::KvValue, _ttl_seconds: u32) -> Result<(), wit_kv::KvError> {
+    fn set_with_ttl(
+        _key: String,
+        _value: wit_kv::KvValue,
+        _ttl_seconds: u32,
+    ) -> Result<(), wit_kv::KvError> {
         Err(op_err("not implemented"))
     }
 
-    fn delete(_key: String) -> Result<bool, wit_kv::KvError> { Err(op_err("not implemented")) }
-    fn exists(_key: String) -> Result<bool, wit_kv::KvError> { Err(op_err("not implemented")) }
+    fn delete(_key: String) -> Result<bool, wit_kv::KvError> {
+        Err(op_err("not implemented"))
+    }
+    fn exists(_key: String) -> Result<bool, wit_kv::KvError> {
+        Err(op_err("not implemented"))
+    }
 
     fn increment(_key: String, _delta: i64) -> Result<i64, wit_kv::KvError> {
         Err(op_err("not implemented"))
@@ -38,10 +46,13 @@ impl wit_kv::Guest for Adapter {
         Err(op_err("not implemented"))
     }
 
-    fn scan(_pattern: String, _cursor: Option<String>, _limit: Option<u32>) -> Result<wit_kv::ScanResult, wit_kv::KvError> {
+    fn scan(
+        _pattern: String,
+        _cursor: Option<String>,
+        _limit: Option<u32>,
+    ) -> Result<wit_kv::ScanResult, wit_kv::KvError> {
         Err(op_err("not implemented"))
     }
 }
 
 export!(Adapter);
-

@@ -172,9 +172,35 @@ jobs:
 
       - name: Install Spin CLI
         run: |
-          # Pin Spin CLI version via env var
-          curl -fsSL https://developer.fermyon.com/downloads/spin/install.sh | bash
+          set -euo pipefail
+          ver="${SPIN_VERSION:-2.7.0}"
+          os="linux"
+          arch="$(uname -m)"
+          case "$arch" in
+            x86_64) arch="amd64" ;;
+            aarch64|arm64) arch="arm64" ;;
+            *) echo "Unsupported arch: $arch" >&2; exit 1 ;;
+          esac
+          url="https://github.com/fermyon/spin/releases/download/v${ver}/spin-v${ver}-${os}-${arch}.tar.gz"
+          echo "Downloading Spin from $url"
+          mkdir -p "$HOME/.spin/bin"
+          tmpdir="$(mktemp -d)"
+          curl -fsSL "$url" -o "$tmpdir/spin.tgz"
+          tar -xzf "$tmpdir/spin.tgz" -C "$tmpdir"
+          # Find the spin binary and install it
+          spincandidate="$(find "$tmpdir" -type f -name spin -perm -111 | head -n1 || true)"
+          if [ -z "$spincandidate" ]; then
+            # Some archives contain 'spin' without exec bit; try any matching file
+            spincandidate="$(find "$tmpdir" -type f -name spin | head -n1 || true)"
+          fi
+          if [ -z "$spincandidate" ]; then
+            echo "Failed to locate 'spin' in archive" >&2
+            ls -R "$tmpdir" >&2 || true
+            exit 1
+          fi
+          install -m 0755 "$spincandidate" "$HOME/.spin/bin/spin"
           echo "$HOME/.spin/bin" >> "$GITHUB_PATH"
+          "$HOME/.spin/bin/spin" --version
 
       - name: Verify Spin version
         run: |
