@@ -1,0 +1,23 @@
+spin_version = "3"
+name = "keel"
+version = "0.1.0"
+trigger = { type = "http", base = "/" }
+
+# Variables for environment-specific configuration
+[variables]
+sqlite_db_url = { default = "sqlite:dev.db" }
+
+# Spin-managed SQLite databases (local dev default)
+[sqlite_databases]
+default = { path = "dev.db" }
+
+# Placeholder HTTP component to anchor the application during Phase 2.
+# Replace `source` once the gateway/HTTP entry component is implemented.
+[[component]]
+id = "keel-gateway"
+source = "target/wasm32-wasip2/release/keel-gateway.wasm"
+[component.trigger]
+route = "/..."
+[component.config]
+database_url = "{{ sqlite_db_url }}"
+

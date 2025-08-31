@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "components/infrastructure/sql-sqlite",
     "components/infrastructure/sql-cloudflare-do",
+    "components/infrastructure/sql-spin-sqlite",
     "components/infrastructure/kv-rocksdb",
     "crates/keel-testing"
 ]
