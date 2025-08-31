@@ -11,6 +11,7 @@ mod bindings {
 }
 
 use bindings::exports::keel::infrastructure::kv as wit_kv;
+use crate::bindings::export;
 
 struct Adapter;
 
