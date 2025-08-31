@@ -16,7 +16,7 @@ BUILD_LOG_FILE="$LOG_DIR/build.log"
 echo "[e2e-run] Building app (logging to $BUILD_LOG_FILE)..."
 mkdir -p "$LOG_DIR"
 # Capture build output; if it fails, print the full log then exit
-if ! (cd "$APP_DIR" && spin build 2>&1 | tee "$BUILD_LOG_FILE"); then
+if ! (cd "$APP_DIR" && spin build 2>&1 | tee ".spin/build.log"); then
   echo "[e2e-run] Build failed." >&2
   # If the log is huge, avoid flooding CI: show last 400 lines
   lines=$(wc -l < "$BUILD_LOG_FILE" || echo 0)
@@ -27,9 +27,8 @@ if ! (cd "$APP_DIR" && spin build 2>&1 | tee "$BUILD_LOG_FILE"); then
     echo "[e2e-run] Full build log:" >&2
     cat "$BUILD_LOG_FILE" || true
   fi
-  # Run a quiet build to surface concise errors, but don't fail if this also errors
-  echo "[e2e-run] Retrying with 'spin build --quiet' for concise errors..." >&2
-  (cd "$APP_DIR" && spin build --quiet) || true
+  # The build already failed above, we have the full log
+  echo "[e2e-run] Build failed (see log above)" >&2
   exit 1
 fi
 

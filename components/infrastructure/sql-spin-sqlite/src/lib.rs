@@ -11,7 +11,11 @@ mod bindings {
     #![allow(unsafe_code)]
     #![allow(unsafe_op_in_unsafe_fn)]
     #![allow(unused_attributes)]
-    include!("generated/sql_adapter.rs");
+    #![allow(clippy::empty_line_after_outer_attr)]
+    wit_bindgen::generate!({
+        world: "sql-adapter",
+        path: "wit",
+    });
 }
 
 use crate::bindings::exports::keel::infrastructure::sql::{self as wit_sql};

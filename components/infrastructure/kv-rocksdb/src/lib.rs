@@ -9,7 +9,11 @@ mod bindings {
     #![allow(unsafe_code)]
     #![allow(unsafe_op_in_unsafe_fn)]
     #![allow(unused_attributes)]
-    include!("generated/kv_adapter.rs");
+    #![allow(clippy::empty_line_after_outer_attr)]
+    wit_bindgen::generate!({
+        world: "kv-adapter",
+        path: "wit",
+    });
 }
 
 use crate::bindings::exports::keel::infrastructure::kv as wit_kv;

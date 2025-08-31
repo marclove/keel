@@ -85,14 +85,6 @@ spin-install-plugins:
 spin-login:
     spin login
 
-# Build all Rust crates (native)
-build:
-    cargo build --workspace
-
-# Build all crates in release mode (native)
-build-release:
-    cargo build --workspace --release
-
 # Build all crates for WASI preview2 target
 build-wasm:
     cargo build --workspace --target wasm32-wasip2
