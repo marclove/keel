@@ -48,10 +48,22 @@ jobs:
           node -v
           pnpm -v
 
+      - name: Ensure pnpm store exists (avoid cache path errors)
+        run: |
+          STORE=$(pnpm store path --silent || echo "")
+          if [ -n "$STORE" ]; then
+            mkdir -p "$STORE"
+          fi
+
       - name: Install Rust (stable)
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-wasip2
+
+      - name: Ensure cache directories exist
+        run: |
+          mkdir -p "$SCCACHE_DIR" || true
+          mkdir -p ~/.cargo/registry ~/.cargo/git target || true
 
       - name: Cache sccache
         uses: actions/cache@v4
