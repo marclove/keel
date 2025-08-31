@@ -1,6 +1,7 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use spin_sdk::{http::{Method, Request, Response}, http_component, sqlite::{Connection, Value}};
+use urlencoding::decode;
 
 #[derive(Serialize, Deserialize)]
 struct ApiResponse<T> {
@@ -14,11 +15,13 @@ fn handle_e2e(req: Request) -> Result<Response> {
     let path = req.path_and_query().unwrap_or("/");
     let method = req.method();
     match (method, path) {
-        (m, "/setup") if *m == Method::Post => setup(),
+        // Allow GET for setup/txn for spin-test convenience
+        (m, "/setup") if *m == Method::Post || *m == Method::Get => setup(),
         (m, "/users") if *m == Method::Post => create_user(req),
         (m, "/users") if *m == Method::Get => list_users(),
-        (m, "/txn/commit") if *m == Method::Post => txn_commit(),
-        (m, "/txn/rollback") if *m == Method::Post => txn_rollback(),
+        (m, "/test/users-add") if *m == Method::Get => users_add_via_query(req),
+        (m, "/txn/commit") if *m == Method::Post || *m == Method::Get => txn_commit(),
+        (m, "/txn/rollback") if *m == Method::Post || *m == Method::Get => txn_rollback(),
         _ => json(404, &ApiResponse::<()> { ok: false, data: None, error: Some("not found".into()) }),
     }
 }
@@ -69,6 +72,37 @@ fn list_users() -> Result<Response> {
         users.push(UserOut { id, name: name.to_string(), email: email.to_string() });
     }
     json(200, &ApiResponse { ok: true, data: Some(users), error: None })
+}
+
+fn users_add_via_query(req: Request) -> Result<Response> {
+    let db = Connection::open_default()?;
+    let qs = req.path_and_query().unwrap_or("");
+    let mut name: Option<String> = None;
+    let mut email: Option<String> = None;
+    if let Some(idx) = qs.find('?') {
+        let q = &qs[idx+1..];
+        for pair in q.split('&') {
+            let mut it = pair.splitn(2, '=');
+            if let (Some(k), Some(v)) = (it.next(), it.next()) {
+                let v = decode(v).unwrap_or_default().to_string();
+                match k {
+                    "name" => name = Some(v),
+                    "email" => email = Some(v),
+                    _ => {}
+                }
+            }
+        }
+    }
+    match (name, email) {
+        (Some(n), Some(e)) => {
+            db.execute(
+                "INSERT INTO users (name, email) VALUES (?, ?)",
+                &[Value::Text(n), Value::Text(e)],
+            )?;
+            json(200, &ApiResponse::<()> { ok: true, data: None, error: None })
+        }
+        _ => json(400, &ApiResponse::<()> { ok: false, data: None, error: Some("missing name or email".into()) })
+    }
 }
 
 fn txn_commit() -> Result<Response> {

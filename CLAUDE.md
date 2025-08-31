@@ -105,3 +105,8 @@ Notes for code changes:
 - Keep changes minimal and focused on requested scopes.
 - Align with WIT contracts and layer boundaries.
 - Prefer adding tasks to `justfile` for repeatable workflows.
+
+## Component Status (Phase 2)
+- `components/infrastructure/sql-spin-sqlite`: implements `sql.wit` using Spin SQLite (query/execute/transactions).
+- `apps/e2e-keel`: runnable HTTP app for behavioral E2E testing against SQLite.
+- Spin capabilities are configured in component manifests; prefer `Connection::open_default()` with a declared `default` binding.

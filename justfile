@@ -204,6 +204,10 @@ e2e-txn-commit:
 e2e-txn-rollback:
     curl -fsS -X POST "{{ e2e_url }}/txn/rollback"
 
+# Orchestrate build → run → smoke test → shutdown, propagating exit code
+e2e-run:
+    E2E_URL={{ e2e_url }} bash scripts/e2e-run.sh
+
 # Create a new Spin app from a template
 
 # Usage: just spin-new http-rust my-app

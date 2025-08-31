@@ -18,6 +18,12 @@ allowed_outbound_hosts = []
 sqlite_databases = ["default"]
 environment = { SPIN_SQLITE_DB_default = "sqlite:dev.db" }
 
+# spin-test integration is paused pending alignment on WIT versions
+# [component.e2e-api.tool.spin-test]
+# source = "tests-rs/target/wasm32-wasip1/release/wasm_test.wasm"
+# build = "(cargo component --version >/dev/null 2>&1 || cargo install cargo-component --locked) && cargo component build --release --target-dir=target"
+# workdir = "tests-rs"
+
 [component.e2e-api.build]
 command = "cargo build --target wasm32-wasip2 --release"
 watch = ["src/**/*.rs", "Cargo.toml"]

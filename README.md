@@ -48,6 +48,13 @@ just transpile
 just test              # workspace tests (unit + BDD)
 # or target a single crate
 just test-crate sql-sqlite
+
+# E2E app (HTTP): build and run
+just spin-build apps/e2e-keel
+just spin-up apps/e2e-keel
+
+# Smoke tests against the running E2E app
+just e2e-smoke
 ```
 
 ## Spin Quickstart
@@ -156,7 +163,7 @@ These options provide much of the desired operational functionality out of the b
 - ✅ Project structure and WIT interfaces  
 - ✅ BDD testing framework
 - ✅ Spin Framework integration foundation
-- 🚧 SQL Spin SQLite adapter implementation
+- ✅ SQL Spin SQLite adapter (query/execute/transactions)
 - 🚧 Complete infrastructure component suite
 
 **Phase 3 (Platform Services)** - Next: Spin-native platform services (observability, security, rate-limiting)
@@ -187,6 +194,13 @@ Spin helpers:
 - spin-watch [dir='.']: Watch a Spin app for changes.
 - spin-cloud-login: Authenticate with Fermyon Cloud.
 - spin-cloud-deploy [dir='.']: Deploy a Spin app to Fermyon Cloud.
+
+E2E helpers:
+- e2e-smoke: Runs setup, creates two users, lists users, then tests commit/rollback
+- e2e-setup / e2e-user / e2e-users / e2e-txn-commit / e2e-txn-rollback: Individual endpoints
+
+E2E app location:
+- apps/e2e-keel (HTTP routes exercising SQLite flows)
 
 ## Community
 
