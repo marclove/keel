@@ -1,9 +1,13 @@
+#![deny(unsafe_code)]
 //! # sqllite Adapter
 //!
 //! ## Implementation Status
 //!
 
-wit_bindgen::generate!({
-    world: "sql-adapter",
-    path: "../../../wit",
-});
+mod bindings {
+    #![allow(unsafe_code)]
+    wit_bindgen::generate!({
+        world: "sql-adapter",
+        path: "../../../wit",
+    });
+}

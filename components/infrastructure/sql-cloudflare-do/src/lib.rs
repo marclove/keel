@@ -1,6 +1,10 @@
+#![deny(unsafe_code)]
 //! # Cloudflare DO SQL Adapter
 
-wit_bindgen::generate!({
-    world: "sql-adapter",
-    path: "../../../wit",
-});
+mod bindings {
+    #![allow(unsafe_code)]
+    wit_bindgen::generate!({
+        world: "sql-adapter",
+        path: "../../../wit",
+    });
+}

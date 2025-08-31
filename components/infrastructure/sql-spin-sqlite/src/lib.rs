@@ -1,14 +1,18 @@
+#![deny(unsafe_code)]
 //! Spin-backed SQLite implementation of the `sql` WIT interface.
 //! Uses Spin's host-provided SQLite for performance and simplicity.
 
 use spin_sdk::sqlite::{Connection, QueryResult as SpinQueryResult, Value as SpinValue};
 
-wit_bindgen::generate!({
-    world: "sql-adapter",
-    path: "../../../wit",
-});
+mod bindings {
+    #![allow(unsafe_code)]
+    wit_bindgen::generate!({
+        world: "sql-adapter",
+        path: "../../../wit",
+    });
+}
 
-use exports::keel::infrastructure::sql::{self as wit_sql};
+use bindings::exports::keel::infrastructure::sql::{self as wit_sql};
 
 // Map WIT sql-value to Spin SQLite Value
 fn to_spin_value(v: &wit_sql::SqlValue) -> Result<SpinValue, wit_sql::SqlError> {

@@ -1,12 +1,16 @@
+#![deny(unsafe_code)]
 //! Placeholder RocksDB KV adapter implementing `kv` WIT interface.
 //! To be completed with real RocksDB bindings suitable for WASM.
 
-wit_bindgen::generate!({
-    world: "kv-adapter",
-    path: "../../../wit",
-});
+mod bindings {
+    #![allow(unsafe_code)]
+    wit_bindgen::generate!({
+        world: "kv-adapter",
+        path: "../../../wit",
+    });
+}
 
-use exports::keel::infrastructure::kv as wit_kv;
+use bindings::exports::keel::infrastructure::kv as wit_kv;
 
 struct Adapter;
 
