@@ -24,7 +24,7 @@ When designing or modifying components, consider how Spin’s capabilities map t
 - Developer workflow: creating apps, application structure, building, running, testing, observability, troubleshooting, runtime configuration.
 - Feature APIs: HTTP requests, Key-Value store, SQLite, MQTT, Redis storage, relational databases, Serverless AI, variables.
 
-Prefer using these facilities over bespoke implementations when appropriate, and keep WIT contracts aligned with the chosen triggers and feature APIs.
+**Keel leverages Spin Framework as our primary runtime**, using Spin's production-ready SQLite, middleware patterns, and deployment capabilities rather than building custom WASI components from scratch. Prefer Spin's native capabilities over bespoke implementations while maintaining WIT interface contracts for component composability.
 
 ## Architecture Philosophy
 
@@ -60,7 +60,7 @@ Interfaces should:
 
 ## Development Status
 
-**Current Phase**: Phase 1 (Foundation) - Recently completed with Phase 2 (Infrastructure Layer) in progress.
+**Current Phase**: Phase 2 (Infrastructure Layer) - In progress with Spin Framework integration focus.
 
 This project uses WASI 0.2 and Component Model for production-ready composable architecture. The toolchain is stable and components can be built today. Components can be transpiled to JavaScript using jco for deployment to platforms like Cloudflare Workers.
 

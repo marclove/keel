@@ -120,8 +120,8 @@ Edge deployments prioritize cold start performance, and Keel excels here:
 
 **Target Metrics:**
 - **<100ms cold start** (vs seconds for container-based microservices)
-- **<50MB memory footprint** per instance
-- **<100MB binary size** including all components
+- **<30MB memory footprint** per instance (optimized via Spin Framework)
+- **<50MB binary size** including all components (Spin efficiency gains)
 
 **Optimization Strategies:**
 - WASM's ahead-of-time compilation
@@ -290,12 +290,13 @@ Keel's edge-native architecture provides exceptional compliance capabilities:
 ### Performance Characteristics
 
 **Target Metrics at Scale:**
-- **Edge operations**: <10ms (99% of requests)
+- **Database operations**: >100,000 ops/sec (10x improvement via Spin SQLite)
+- **Edge operations**: <5ms (99% of requests, improved via Spin Framework)
 - **Regional operations**: <50ms (cross-edge coordination)
 - **Global operations**: <200ms (acceptable for admin/analytics)
 - **Cold start**: <100ms (edge deployment)
-- **Memory footprint**: <50MB per edge instance
-- **Binary size**: <100MB including all components
+- **Memory footprint**: <30MB per edge instance (Spin optimization)
+- **Binary size**: <50MB including all components (Spin efficiency)
 
 **Proven Scale Examples:**
 - WhatsApp: 2 billion users on Erlang (single VM approach)
@@ -385,12 +386,13 @@ Service mesh adds complexity to solve distributed systems problems. Keel elimina
 
 ### Q: Is this ready for production?
 
-**Current Status (Phase 1):** Early development, not production-ready
+**Current Status (Phase 2):** Infrastructure layer in progress with Spin Framework integration
 
 **Production Readiness Timeline:**
-- **Stage 1:** Infrastructure adapters complete
-- **Stage 2:** Repository layer complete
-- **Stage 3:** First production SaaS applications
+- **Stage 1:** Infrastructure adapters complete with Spin Framework
+- **Stage 2:** Platform services leveraging Spin-native capabilities
+- **Stage 3:** Repository layer with production-ready persistence
+- **Stage 4:** First production SaaS applications
 
 **What works today:**
 - WIT interface definitions

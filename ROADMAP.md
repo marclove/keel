@@ -15,20 +15,22 @@ This roadmap outlines the planned development phases for the Keel composable Saa
 
 ## Infrastructure Layer (Phase 2)
 
-- [ ] Complete sql-sqlite component implementation
+- [ ] Complete sql-spin-sqlite adapter implementing sql.wit interface via Spin Framework
 - [ ] Complete kv-rocksdb component implementation
+- [ ] Spin Framework integration and configuration
 - [ ] Full WASM compilation pipeline (wasm32-wasip2 target)
 - [ ] JavaScript transpilation via jco toolchain
 - [ ] TypeScript definitions for edge deployment
 - [ ] BDD test integration with WASM components
-- [ ] Single binary deployment capability proven
+- [ ] Single binary deployment capability via Spin applications
+- [ ] Fermyon Cloud deployment pipeline
 
 ### Planned Components
 
 #### SQL Adapters
-- [ ] `sql-sqlite` - SQLite database adapter
-- [ ] `sql-postgres` - PostgreSQL database adapter
-- [ ] `sql-mysql` - MySQL database adapter
+- [ ] `sql-spin-sqlite` - Spin Framework SQLite adapter implementing sql.wit interface
+- [ ] `sql-postgres` - PostgreSQL database adapter (deferred to Phase 3+)
+- [ ] `sql-mysql` - MySQL database adapter (deferred to Phase 3+)
 
 #### Key-Value Adapters
 - [ ] `kv-memory` - In-memory adapter for testing
@@ -45,8 +47,11 @@ This roadmap outlines the planned development phases for the Keel composable Saa
 - [ ] `auth-auth0` - Auth0 authentication provider
 - [ ] `auth-local` - Local authentication for development
 
+### Technical Approach
+Phase 2 focuses on implementing WIT interface adapters that leverage Spin Framework's production-ready capabilities rather than building custom WASI components from scratch. The sql-spin-sqlite adapter provides immediate production capability with proven performance characteristics.
+
 ### Target Completion
-Infrastructure Phase complete with production-ready WASM components.
+Infrastructure Phase complete with Spin Framework integration and production-ready WASM components.
 
 ---
 
@@ -55,28 +60,31 @@ Infrastructure Phase complete with production-ready WASM components.
 ### Planned Components
 
 #### Observability
-- [ ] `observability` - Unified tracing, metrics, and logging
-  - Integration with OpenTelemetry standards
-  - Support for multiple backends (Jaeger, Prometheus, etc.)
+- [ ] `spin-observability` - Unified tracing, metrics, and logging using Spin Framework's built-in telemetry APIs
+  - Integration with Spin's OpenTelemetry support
+  - Leverage Spin's native observability hooks
+  - Support for Spin-compatible backends
 
 #### Security & Compliance
-- [ ] `security-context` - Authentication, authorization, and audit
-  - Role-based access control (RBAC)
-  - Audit logging and compliance reporting
-- [ ] `rate-limiting` - Request throttling and abuse prevention
+- [ ] `spin-security-context` - Authentication, authorization, and audit using Spin's security patterns
+  - Role-based access control (RBAC) via Spin middleware
+  - Audit logging through Spin's logging framework
+  - Integration with Spin's authentication triggers
+- [ ] `spin-rate-limiting` - Request throttling and abuse prevention via Spin middleware patterns
 
 #### Operational
-- [ ] `feature-flags` - A/B testing and gradual rollouts
-- [ ] `configuration` - Dynamic configuration management
+- [ ] `spin-feature-flags` - A/B testing and gradual rollouts through Spin configuration and variables
+- [ ] `spin-configuration` - Dynamic configuration management using Spin's variable system
 
-### Success Criteria
-- Platform services integrate seamlessly with business components
-- Security auditing meets compliance requirements (SOC 2, GDPR)
-- Observability provides production-ready monitoring
-- Feature flags enable safe deployments
+#### Additional Spin-Native Services
+- [ ] `spin-http-client` - HTTP client abstraction using Spin's outbound HTTP capabilities
+- [ ] `spin-messaging` - Message queuing via Spin's Redis and MQTT support
+
+### Technical Approach
+Platform services leverage Spin Framework's mature middleware patterns, configuration system, and built-in APIs rather than implementing custom WASI solutions. This provides immediate production readiness and operational best practices.
 
 ### Target Completion
-Production-ready platform services.
+Production-ready platform services built on Spin Framework foundations.
 
 ---
 
@@ -105,14 +113,17 @@ interface user-repository {
 }
 ```
 
+### Technical Approach
+Repositories implement business-domain operations using the sql.wit interface, with persistence provided by the sql-spin-sqlite adapter. This maintains database-agnostic business logic while leveraging Spin Framework's production-ready SQLite capabilities.
+
 ### Success Criteria
 - Business logic contains zero SQL strings or database-specific code
-- Repositories are database-agnostic (work with any SQL adapter)
-- Comprehensive test coverage with both real and mock databases
-- Performance benchmarks meet SaaS application requirements
+- Repositories work with any SQL adapter implementing sql.wit interface
+- Comprehensive test coverage with both Spin SQLite and mock databases
+- Repositories leverage Spin's connection pooling and transaction management
 
 ### Target Completion
-Complete repository abstraction layer.
+Complete repository abstraction layer with Spin SQLite integration.
 
 ---
 
@@ -191,6 +202,39 @@ First product suite launched.
 
 ---
 
+## Technical Decisions
+
+### Runtime Framework: Spin Framework
+
+Keel leverages the **Spin Framework** as the primary runtime for building and deploying WASM components. This decision provides:
+
+- **Production-ready infrastructure**: Spin's mature SQLite, HTTP, and middleware capabilities
+- **Edge deployment**: Single binary applications deployable to edge locations
+- **Standards compliance**: Built on WASI Component Model with portability guarantees
+- **Operational simplicity**: Unified development, testing, and deployment workflows
+
+### Deployment Architecture: SpinKube + Linode LKE
+
+- **SpinKube**: Kubernetes operator for Spin applications, enabling enterprise deployment patterns
+- **Linode LKE**: Kubernetes clusters providing regional deployment with transparent pricing and clear CLI
+- **Edge distribution**: Multiple regional clusters with geo-aware DNS routing
+
+### Database Strategy: Spin Framework SQLite
+
+- **Primary database**: Spin's native SQLite support via `spin:sqlite` interface
+- **Managed service**: Fermyon Cloud's managed SQLite with Turso integration
+- **Edge optimization**: Co-located database access eliminating network latency
+- **Global sync**: Distributed SQLite with eventual consistency for multi-region deployments
+
+### Component Implementation Approach
+
+- **WIT interfaces**: All components implement standard WIT contracts for interoperability
+- **Hybrid architecture**: Leverage Spin's native capabilities where available, implement WIT adapters where needed
+- **Runtime composability**: Components configured via Spin's configuration system
+- **Single binary deployment**: All components packaged into Spin applications
+
+---
+
 ## Long-term Vision
 
 ### Advanced Runtime Features
@@ -241,9 +285,9 @@ We welcome community input on this roadmap! Here's how to get involved:
 | Phase | Focus | Status |
 |-------|-------|--------|
 | 1 | Foundation & Architecture | ✅ Complete |
-| 2 | Infrastructure Adapters | 🚧 In Progress |
-| 3 | Platform Services | 📋 Planned |
-| 4 | Repository Layer | 📋 Planned |
+| 2 | Infrastructure Adapters (Spin Framework Integration) | 🚧 In Progress |
+| 3 | Platform Services (Spin-Native) | 📋 Planned |
+| 4 | Repository Layer (Spin SQLite) | 📋 Planned |
 | 5 | Business Domains | 📋 Planned |
 | 6 | Product Composition | 📋 Planned |
 | 7+ | Advanced Features | 💭 Vision |

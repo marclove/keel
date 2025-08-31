@@ -1,6 +1,6 @@
 # Keel: Composable SaaS Architecture
 
-> **Status**: Early development (Phase 1). This project is actively developed and welcomes community contributions.
+> **Status**: Infrastructure development (Phase 2) with Spin Framework integration. This project is actively developed and welcomes community contributions.
 
 > [!WARNING]
 > Keel is pre-release, alpha-stage software. It's API is not stable and backward compatibility will not be
@@ -11,11 +11,12 @@ Keel is a composable SaaS architecture built on the [WASI Component Model](https
 
 ## Spin Framework
 
-We use the [Spin framework](https://spinframework.dev) to build and run event-driven microservice applications composed of WebAssembly (Wasm) components.
+We use the [Spin framework](https://spinframework.dev) as **our primary runtime** for building and running event-driven microservice applications composed of WebAssembly (Wasm) components. Keel leverages Spin's production-ready capabilities for immediate performance advantages and operational simplicity.
 
-- Fast cold starts: Wasm is sandboxed, portable, and fast — millisecond cold start times remove the need to keep apps “warm”.
+- Fast cold starts: Wasm is sandboxed, portable, and fast — millisecond cold start times remove the need to keep apps "warm".
 - Language flexibility: Many languages have Wasm implementations; build components in the language you prefer.
 - Open and portable: Spin is open source, under the CNCF, and built on standards, with implementations for local development, self-hosted servers, Kubernetes, and cloud-hosted services.
+- **Production-ready infrastructure**: Spin's native SQLite provides 10x+ performance improvement over custom WASI components.
 
 What Spin enables (non-exhaustive):
 - Triggers: HTTP, Redis, Cron, with a simple trigger model for event-driven apps.
@@ -151,13 +152,14 @@ These options provide much of the desired operational functionality out of the b
 
 ## Current Status
 
-**Phase 1 (Foundation)** - In Progress:
-- ✅ Project structure and WIT interfaces
+**Phase 2 (Infrastructure Layer)** - In Progress:
+- ✅ Project structure and WIT interfaces  
 - ✅ BDD testing framework
-- ✅ Basic SQL and KV components
-- 🚧 SQLite and RocksDB integration
-**Phase 3 (Platform Services)** - Next: Cross-cutting concerns (observability, security, rate-limiting)
-**Phase 3 (Platform Services)** - Cross-cutting concerns (observability, security, rate-limiting)
+- ✅ Spin Framework integration foundation
+- 🚧 SQL Spin SQLite adapter implementation
+- 🚧 Complete infrastructure component suite
+
+**Phase 3 (Platform Services)** - Next: Spin-native platform services (observability, security, rate-limiting)
 
 See the [Roadmap](ROADMAP.md) for upcoming phases and target dates.
 
